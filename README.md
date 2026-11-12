@@ -38,6 +38,8 @@
 │   ├── architecture.md        # v0.1 架构
 │   ├── PRD-v0.1.md            # 产品需求文档（撰写中）
 │   └── decisions/             # 架构决策记录（ADR）
+├── prototype/
+│   └── flow.html              # 可点的流程原型（单文件，双击即开）
 ├── prompts/                   # Agent prompt 骨架
 ├── app/                       # 应用代码（v0.1.5 开始）
 └── data/                      # 客户资料与生成物（gitignore，不入库）

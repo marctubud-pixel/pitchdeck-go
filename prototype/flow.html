@@ -1,0 +1,1020 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C · 比稿作战室 — 流程原型</title>
+<style>
+  :root{
+    --paper:#f7f5f1;
+    --card:#ffffff;
+    --ink:#191816;
+    --ink-2:#4a4742;
+    --ink-3:#8b857c;
+    --line:#e6e1d8;
+    --line-2:#f0ece4;
+    --accent:#c04a2f;
+    --accent-soft:#fdf0ec;
+    --ok:#2f6b4f;
+    --ok-soft:#eaf4ee;
+    --warn:#a7712a;
+    --warn-soft:#fbf2e2;
+    --mono:"SF Mono",ui-monospace,Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font:14px/1.65 "PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  button{font:inherit;cursor:pointer}
+  .topbar{
+    position:sticky;top:0;z-index:20;
+    display:flex;align-items:center;gap:16px;
+    padding:12px 22px;
+    background:rgba(247,245,241,.86);
+    backdrop-filter:saturate(1.4) blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .brand{display:flex;align-items:baseline;gap:9px;white-space:nowrap}
+  .brand b{font-size:15px;letter-spacing:.02em}
+  .brand span{font-size:11px;color:var(--ink-3);letter-spacing:.14em}
+  .proj{display:flex;align-items:center;gap:10px;min-width:0}
+  .proj .name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pill{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:3px 9px;border-radius:999px;
+    font-size:11.5px;white-space:nowrap;
+    border:1px solid var(--line);background:#fff;color:var(--ink-2);
+  }
+  .pill i{width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block}
+  .metrics{margin-left:auto;display:flex;gap:18px;align-items:center}
+  .metric{text-align:right;line-height:1.25}
+  .metric b{display:block;font:600 13px/1.2 var(--mono)}
+  .metric span{font-size:10.5px;color:var(--ink-3);letter-spacing:.06em;white-space:nowrap}
+  .ghost{
+    border:1px solid var(--line);background:#fff;color:var(--ink-2);
+    padding:6px 11px;border-radius:9px;font-size:12px;white-space:nowrap;
+  }
+  .ghost:hover{border-color:#cfc8bb;color:var(--ink)}
+
+  .shell{
+    display:grid;
+    grid-template-columns:236px minmax(0,1fr) 310px;
+    gap:0;
+    max-width:1480px;margin:0 auto;
+    align-items:start;
+  }
+  /* ---------- left rail ---------- */
+  .rail{
+    position:sticky;top:57px;
+    padding:22px 12px 40px 20px;
+    border-right:1px solid var(--line);
+    max-height:calc(100vh - 57px);overflow:auto;
+  }
+  .rail h4{
+    margin:0 0 12px;font-size:10.5px;letter-spacing:.16em;
+    color:var(--ink-3);font-weight:600;
+  }
+  .step{
+    position:relative;display:flex;gap:10px;
+    padding:8px 8px 8px 0;border-radius:9px;
+    cursor:pointer;border:0;background:none;width:100%;text-align:left;
+    color:var(--ink-3);
+  }
+  .step:hover{background:#fff}
+  .step .dot{
+    position:relative;z-index:1;flex:0 0 auto;
+    width:19px;height:19px;border-radius:50%;
+    border:1px solid var(--line);background:#fff;
+    font:600 9.5px/17px var(--mono);text-align:center;color:var(--ink-3);
+  }
+  .step.done .dot{background:var(--ok);border-color:var(--ok);color:#fff}
+  .step.current .dot{background:var(--ink);border-color:var(--ink);color:#fff}
+  .step .lab{font-size:12.5px;line-height:1.35;padding-top:1px}
+  .step .gate{
+    display:inline-block;margin-top:3px;
+    font:600 9.5px/1 var(--mono);letter-spacing:.05em;
+    color:var(--accent);background:var(--accent-soft);
+    border-radius:4px;padding:3px 5px;
+  }
+  .step.done .lab{color:var(--ink-2)}
+  .step.current .lab{color:var(--ink);font-weight:600}
+  .step::after{
+    content:"";position:absolute;left:9px;top:27px;bottom:-8px;width:1px;background:var(--line);
+  }
+  .step:last-child::after{display:none}
+
+  /* ---------- stage ---------- */
+  .stage{padding:26px 30px 90px;min-width:0}
+  .eyebrow{
+    display:flex;align-items:center;gap:9px;
+    font:600 10.5px/1 var(--mono);letter-spacing:.16em;color:var(--ink-3);
+    margin-bottom:9px;text-transform:uppercase;
+  }
+  .eyebrow .gate-tag{color:var(--accent);background:var(--accent-soft);padding:4px 6px;border-radius:4px;letter-spacing:.08em}
+  h1{font-size:23px;line-height:1.35;margin:0 0 6px;letter-spacing:-.01em}
+  .why{color:var(--ink-3);font-size:12.5px;margin:0 0 20px;max-width:62ch}
+  .why b{color:var(--ink-2);font-weight:600}
+
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:18px 20px;margin-bottom:14px;
+  }
+  .card h3{
+    margin:0 0 12px;font-size:11px;letter-spacing:.14em;color:var(--ink-3);
+    font-weight:600;text-transform:uppercase;
+  }
+  .card p{margin:0 0 10px;color:var(--ink-2)}
+  .card p:last-child{margin-bottom:0}
+  .lead{font-size:16.5px;line-height:1.5;color:var(--ink);font-weight:500}
+  .quote{
+    border-left:2px solid var(--line);padding:2px 0 2px 14px;
+    color:var(--ink-2);font-size:13px;
+  }
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .kv{display:grid;grid-template-columns:88px 1fr;gap:7px 12px;font-size:13px}
+  .kv dt{color:var(--ink-3);font-size:12px}
+  .kv dd{margin:0;color:var(--ink)}
+  .tag{
+    display:inline-block;font-size:11px;padding:2px 7px;border-radius:5px;
+    background:#f3f0ea;color:var(--ink-2);margin:0 5px 5px 0;
+  }
+  .tag.on{background:var(--ok-soft);color:var(--ok);border:1px solid #cfe2d6}
+  .tag.off{background:#f5f3ef;color:#a9a49b;text-decoration:line-through}
+  .tag.maybe{background:var(--warn-soft);color:var(--warn);border:1px solid #eeddba}
+  .mono{font-family:var(--mono);font-size:12.5px}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line-2)}
+  th{color:var(--ink-3);font-weight:600;font-size:10.5px;letter-spacing:.08em}
+  td.num,th.num{text-align:right;font-family:var(--mono)}
+  tr:last-child td{border-bottom:0}
+
+  .q-item{display:flex;gap:11px;padding:11px 0;border-bottom:1px solid var(--line-2)}
+  .q-item:last-child{border-bottom:0}
+  .q-badge{
+    flex:0 0 auto;width:20px;height:20px;border-radius:5px;
+    font:700 10.5px/20px var(--mono);text-align:center;color:#fff;background:var(--accent);
+  }
+  .q-badge.b{background:#8a8478}
+  .q-badge.c{background:#b9b3a8}
+  .q-body{min-width:0}
+  .q-body b{display:block;font-size:13px;font-weight:600;margin-bottom:2px}
+  .q-body span{font-size:11.5px;color:var(--ink-3)}
+  .choice{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+  .choice button{
+    border:1px solid var(--line);background:#fff;border-radius:8px;
+    padding:6px 11px;font-size:12px;color:var(--ink-2);
+  }
+  .choice button:hover{border-color:#cfc8bb}
+  .choice button.sel{background:var(--ink);border-color:var(--ink);color:#fff}
+
+  .evidence{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+  .ev{
+    border:1px solid var(--line);border-radius:11px;padding:13px 14px;background:#fff;
+  }
+  .ev p{margin:0 0 8px;font-size:13px;line-height:1.55;color:var(--ink)}
+  .ev footer{display:flex;justify-content:space-between;gap:8px;font-size:10.5px;color:var(--ink-3)}
+  .ev footer .src{color:var(--ink-2);text-decoration:none;border-bottom:1px dotted #cfc8bb}
+
+  .strat{cursor:pointer;transition:.16s;position:relative}
+  .strat:hover{border-color:#cfc8bb;transform:translateY(-1px)}
+  .strat.sel{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink) inset}
+  .strat .pick{
+    position:absolute;top:12px;right:12px;font-size:10px;color:var(--ink-3);
+    border:1px solid var(--line);border-radius:999px;padding:3px 8px;background:#fff;
+  }
+  .strat.sel .pick{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .strat h4{margin:0 0 5px;font-size:14.5px}
+  .strat .one{font-size:12.5px;color:var(--ink-2);margin:0 0 10px}
+  .strat dl{margin:0;font-size:11.5px;display:grid;grid-template-columns:52px 1fr;gap:4px 8px}
+  .strat dt{color:var(--ink-3)}
+  .strat dd{margin:0;color:var(--ink-2)}
+
+  .gatecard{
+    border:1px solid #e8c7bd;background:linear-gradient(180deg,#fffdfc,#fdf4f0);
+    border-radius:14px;padding:16px 18px;margin-top:20px;
+  }
+  .gatecard h3{
+    margin:0 0 4px;font-size:11px;letter-spacing:.14em;color:var(--accent);font-weight:700;
+  }
+  .gatecard .ask{font-size:14px;margin:0 0 12px;color:var(--ink)}
+  .actions{display:flex;flex-wrap:wrap;gap:9px;align-items:center}
+  .btn{
+    border:0;border-radius:9px;padding:9px 15px;font-size:13px;font-weight:600;
+    background:var(--ink);color:#fff;
+  }
+  .btn:hover{opacity:.9}
+  .btn:disabled{opacity:.32;cursor:not-allowed}
+  .btn.alt{background:#fff;color:var(--ink);border:1px solid var(--line)}
+  .btn.alt:hover{border-color:#cfc8bb}
+  .btn.danger{background:#fff;color:var(--accent);border:1px solid #e8c7bd}
+  .hint{font-size:11.5px;color:var(--ink-3)}
+
+  .check{list-style:none;margin:0;padding:0}
+  .check li{
+    display:flex;gap:9px;padding:7px 0;font-size:12.5px;color:var(--ink-2);
+    border-bottom:1px solid var(--line-2);
+  }
+  .check li:last-child{border-bottom:0}
+  .tick{flex:0 0 auto;width:15px;height:15px;border-radius:50%;background:var(--ok-soft);color:var(--ok);font-size:9px;line-height:15px;text-align:center;font-weight:700}
+  .tick.no{background:var(--accent-soft);color:var(--accent)}
+  .tick.wait{background:#f1eee8;color:#a9a49b}
+
+  /* ---------- right rail ---------- */
+  .side{
+    position:sticky;top:57px;padding:22px 20px 40px 0;
+    max-height:calc(100vh - 57px);overflow:auto;
+  }
+  .panel{background:#fff;border:1px solid var(--line);border-radius:13px;padding:14px 15px;margin-bottom:12px}
+  .panel h4{margin:0 0 10px;font-size:10.5px;letter-spacing:.14em;color:var(--ink-3);font-weight:600}
+  .mini{display:grid;grid-template-columns:1fr auto;gap:5px 10px;font-size:12px}
+  .mini dt{color:var(--ink-3)}
+  .mini dd{margin:0;text-align:right;font-family:var(--mono);font-size:11.5px}
+  .counter{display:flex;gap:6px}
+  .counter div{flex:1;text-align:center;border:1px solid var(--line);border-radius:9px;padding:7px 4px}
+  .counter b{display:block;font:600 16px/1.1 var(--mono)}
+  .counter span{font-size:10px;color:var(--ink-3)}
+  .counter .a b{color:var(--accent)}
+  .logline{font-size:11.5px;color:var(--ink-2);padding:7px 0;border-bottom:1px dashed var(--line)}
+  .logline:last-child{border-bottom:0}
+  .logline b{font-family:var(--mono);font-size:10px;color:var(--accent);margin-right:5px}
+  .empty{font-size:11.5px;color:var(--ink-3);margin:0}
+
+  .banner{
+    display:flex;gap:12px;align-items:flex-start;
+    background:#fff;border:1px solid var(--line);border-radius:13px;
+    padding:13px 15px;margin-bottom:18px;font-size:12.5px;color:var(--ink-2);
+  }
+  .banner b{color:var(--ink)}
+  .banner .x{margin-left:auto;border:0;background:none;color:var(--ink-3);font-size:15px;line-height:1}
+
+  .done-hero{
+    background:linear-gradient(180deg,#f3f8f4,#eef5f0);
+    border:1px solid #d8e6dc;border-radius:14px;padding:22px;margin-bottom:14px;
+  }
+  .done-hero h2{margin:0 0 6px;font-size:18px}
+  .done-hero p{margin:0;font-size:13px;color:var(--ink-2)}
+
+  @media (max-width:1000px){
+    .topbar{gap:10px;padding:11px 14px}
+    .brand span{display:none}
+    .proj .name{max-width:150px;font-size:13px}
+    .metrics{gap:12px}
+    .metric b{font-size:12px}
+    .metric span{font-size:9.5px;letter-spacing:0}
+  }
+  @media (max-width:1180px){
+    .shell{grid-template-columns:196px minmax(0,1fr)}
+    .side{display:none}
+    .stage{padding:24px 22px 80px}
+  }
+  @media (max-width:860px){
+    .shell{grid-template-columns:164px minmax(0,1fr)}
+    .rail{padding:18px 8px 40px 12px}
+    .step .lab{font-size:11.5px}
+    .grid3{grid-template-columns:1fr 1fr}
+  }
+  @media (max-width:700px){
+    .shell{grid-template-columns:1fr}
+    .rail{display:none}
+    .stage{padding:18px 16px 80px}
+    .grid2,.grid3,.evidence{grid-template-columns:1fr}
+    .metrics{display:none}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand"><b>C · 比稿作战室</b><span>PROTOTYPE v0.1</span></div>
+  <div class="proj">
+    <span class="name">MORII 女装 · 2027 春夏上新比稿</span>
+    <span class="pill" id="statePill"><i></i>接单中</span>
+  </div>
+  <div class="metrics">
+    <div class="metric"><b id="mCost">¥0</b><span>项目成本</span></div>
+    <div class="metric"><b id="mHours">0.0h</b><span>人时</span></div>
+    <div class="metric"><b>24h</b><span>交付窗口</span></div>
+  </div>
+  <button class="ghost" id="reset">重置演示</button>
+</header>
+
+<div class="shell">
+  <aside class="rail" id="rail"></aside>
+  <main class="stage" id="stage"></main>
+  <aside class="side" id="side"></aside>
+</div>
+
+<script>
+/* ------------------------------------------------------------------ *
+ * 数据：一个真实感的服装比稿样例
+ * ------------------------------------------------------------------ */
+const BRIEF_RAW = `【微信语音转写 · 08:47】
+「这季我们想做轻通勤，别太职业，要能穿去上班也能约会。人群 25 到 32，一二线。
+小红书和抖音为主，预算 120 万，不要投硬广，我们想看内容怎么做。
+提报下周一，三家比稿，老板会来。」
+
+【PDF · Brief 摘要】
+必答项：
+① 本季核心主张是什么
+② 如何让「轻通勤」区别于优衣库 / UR
+③ 内容如何持续到双 11
+④ KOL 组合怎么搭
+⑤ 预算怎么分
+
+评分：策略 40% / 创意 30% / 执行 20% / 团队 10%
+硬性：提报 deck ≤ 45 页；不得使用代言人。`;
+
+const TASKBOOK = {
+  goal:'为 2027 SS 新系列建立「轻通勤」的品类心智，并沉淀可复用到双 11 的内容资产',
+  audience:'25–32 岁一二线城市女性 · 通勤 + 轻社交两场景',
+  deliver:'提报 deck（≤45 页）+ 预算表 + 现场答辩',
+  budget:'¥1,200,000（不含制作费；是否含 KOL 采买待确认）',
+  schedule:'3 天后提报 · 9 月上市 · 内容需延续至双 11',
+  rubric:'策略 40 / 创意 30 / 执行 20 / 团队 10'
+};
+
+const GAPS = [
+  '预算是否包含 KOL 采买，未说明',
+  '未提供竞品清单，需自行圈定',
+  '「轻通勤」是否允许重新定义，未说明',
+  '无历史素材与投放数据，复用性未知'
+];
+
+const GATE_META = {
+  G1:{at:'S0 接单后', ask:'任务书跟客户说的是同一件事吗？'},
+  G2:{at:'S1 判断后', ask:'这单接不接，报多少？'},
+  G3:{at:'S2 启动包后', ask:'论点、模块、骨架，对不对？'},
+  G4:{at:'S4 策略后', ask:'三个方向里选哪个？'},
+  G5:{at:'S6 合稿后', ask:'可以定稿了吗？'},
+  G6:{at:'S9 复盘后', ask:'赢在哪、输在哪？'}
+};
+
+const STEPS = [
+  {code:'S0', title:'接单', gate:'G1'},
+  {code:'S1', title:'判断', gate:'G2'},
+  {code:'S2', title:'启动包', gate:'G3'},
+  {code:'S3', title:'情报', gate:null},
+  {code:'S4', title:'策略', gate:'G4'},
+  {code:'S5', title:'生产', gate:null},
+  {code:'S6', title:'合稿', gate:'G5'},
+  {code:'S7', title:'验收', gate:null},
+  {code:'S8', title:'交付', gate:null},
+  {code:'S9', title:'复盘', gate:'G6'}
+];
+
+const EVIDENCE = [
+  {claim:'UR 2026 秋冬以「城市轻装 · 一件多穿」打抖音，话题播放 1.2 亿，但未提「通勤」二字。', src:'抖音话题页', date:'2026-09'},
+  {claim:'优衣库「LifeWear 通勤」在小红书有 4.3 万篇笔记，高频词是「不皱」「空调房」「不起球」。', src:'小红书搜索页', date:'2026-10'},
+  {claim:'天猫 2026 Q3「通勤」搜索同比 +18%，而「轻通勤」搜索量仍接近 0 —— 这个词还没被占领。', src:'生意参谋（估算）', date:'2026-10'},
+  {claim:'近 90 天「通勤穿搭」互动 Top 词：显瘦 / 不皱 / 一衣多穿 / 梨形友好。', src:'小红书笔记抽样 200 条', date:'2026-10'},
+  {claim:'25–32 岁女性工作日平均换装 2.1 次（早通勤 → 下班社交），周末 1.4 次。', src:'某消费调研，样本 1,200', date:'2026-06'},
+  {claim:'抖音「办公室穿搭」完播率比「下班约会穿搭」低 12 个百分点。', src:'第三方监测（估算）', date:'2026-09'},
+  {claim:'MO&Co. 走「酷感通勤」，价格带高 30%，未下沉到 300–600 元带。', src:'品牌天猫旗舰店', date:'2026-10'},
+  {claim:'客户历史投放数据未提供 —— 无法验证过往内容 ROI。', src:'', date:'待补充'}
+];
+
+const STRATEGIES = [
+  {
+    id:'A', name:'一天两场',
+    one:'轻通勤不是一种风格，是一天里两次切换的能力。',
+    insight:'换装 2.1 次 / 工作日', proof:'调研 2026-06；小红书「一衣多穿」高频',
+    budget:'内容 65% · KOL 25% · 制作 10%',
+    risk:'执行门槛高，需要产品真的能「一件两穿」'
+  },
+  {
+    id:'B', name:'不皱的一天',
+    one:'把通勤痛点做成一个可验证的功能承诺。',
+    insight:'「不皱 / 空调房」是最高频词', proof:'优衣库笔记 4.3 万篇；互动 Top 词',
+    budget:'KOL 40% · 内容 40% · 制作 20%',
+    risk:'容易变成面料广告，差异化弱，像优衣库的跟随者'
+  },
+  {
+    id:'C', name:'下班后的 3 分钟',
+    one:'不谈通勤，只谈下班那一刻的转换。',
+    insight:'办公室穿搭完播率低 12pt', proof:'第三方监测 2026-09',
+    budget:'抖音 50% · 小红书 30% · 制作 20%',
+    risk:'离「轻通勤」的 brief 较远，客户可能觉得跑题'
+  }
+];
+
+/* ------------------------------------------------------------------ *
+ * 状态
+ * ------------------------------------------------------------------ */
+const initial = () => ({
+  step:0,
+  gates:{G1:'pending',G2:'pending',G3:'pending',G4:'pending',G5:'pending',G6:'pending'},
+  quote:6800,
+  rejected:false,
+  a1:null, a2:null,
+  chosen:null,
+  fixDone:false,
+  delivered:false,
+  archived:false,
+  cost:0,
+  hours:0,
+  log:[],
+  banner:true
+});
+let S = initial();
+
+const fmtMoney = n => '¥' + n.toLocaleString('zh-CN');
+const el = id => document.getElementById(id);
+
+function log(text){
+  S.log.unshift({t:new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'}), text});
+}
+function advance(to, cost=0, hours=0){
+  S.step = to; S.cost += cost; S.hours += hours;
+}
+function pass(gate, note){
+  S.gates[gate] = 'pass';
+  if(note) log(`${gate} 通过 · ${note}`);
+}
+
+/* ------------------------------------------------------------------ *
+ * 各步骤的正文渲染
+ * ------------------------------------------------------------------ */
+function stepS0(){
+  return `
+  <div class="eyebrow">S0 · 接单 INTAKE</div>
+  <h1>把一段语音和一份 PDF，变成一份能对齐的任务书</h1>
+  <p class="why">国内一半的 brief 是口头的。<b>接单员的职责不是理解，是让「没说的部分」显形</b>——否则后面每一步都在替客户猜。</p>
+
+  <div class="card">
+    <h3>原始 brief</h3>
+    <div class="quote" style="white-space:pre-line">${BRIEF_RAW}</div>
+  </div>
+
+  <div class="card">
+    <h3>任务书 · 五项</h3>
+    <dl class="kv">
+      <dt>目标</dt><dd>${TASKBOOK.goal}</dd>
+      <dt>人群</dt><dd>${TASKBOOK.audience}</dd>
+      <dt>交付物</dt><dd>${TASKBOOK.deliver}</dd>
+      <dt>预算</dt><dd>${TASKBOOK.budget}</dd>
+      <dt>排期</dt><dd>${TASKBOOK.schedule}</dd>
+      <dt>评分</dt><dd>${TASKBOOK.rubric}</dd>
+    </dl>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>缺口清单 · 4</h3>
+      <ul class="check">
+        ${GAPS.map(g=>`<li><span class="tick no">!</span><span>${g}</span></li>`).join('')}
+      </ul>
+    </div>
+    <div class="card">
+      <h3>反问提纲 · 5</h3>
+      <ul class="check">
+        <li><span class="tick wait">?</span><span>120 万是否含 KOL 采买与制作？</span></li>
+        <li><span class="tick wait">?</span><span>「轻通勤」是我们定义，还是你们已有内部定义？</span></li>
+        <li><span class="tick wait">?</span><span>主推单品是西装外套还是针织套装？</span></li>
+        <li><span class="tick wait">?</span><span>竞品除了优衣库 / UR，还有必须提到的吗？</span></li>
+        <li><span class="tick wait">?</span><span>双 11 的内容是否要在这份提案里一起排？</span></li>
+      </ul>
+    </div>
+  </div>
+
+  ${gateBlock('G1',
+    '任务书五项齐全，4 条缺口已列成反问。确认后进入判断。',
+    `<button class="btn" onclick="doG1()">确认任务书</button>`,
+    S.gates.G1==='pass')}`;
+}
+
+function stepS1(){
+  return `
+  <div class="eyebrow">S1 · 判断 QUALIFY</div>
+  <h1>先决定接不接，再决定怎么打</h1>
+  <p class="why">这一单客户已经有偏好（三家比稿、老板会来）。<b>判断的价值不是算概率，是把你的人天投到赢面更高的地方</b>。</p>
+
+  <div class="card">
+    <h3>结论</h3>
+    <p class="lead">Go · 建议接，但不做「全案」承诺</p>
+    <ul class="check" style="margin-top:12px">
+      <li><span class="tick">1</span><span>brief 的必答项清晰，评分标准明确 —— 可针对性排布（策略占 40%，正好是你的强项）。</span></li>
+      <li><span class="tick">2</span><span>「轻通勤」在平台侧仍是空白词（搜索量≈0），有定义权，值得押。</span></li>
+      <li><span class="tick">3</span><span>风险：客户未给历史数据、已有偏好；赢面判断为中等，不宜投入超过 10 人天。</span></li>
+    </ul>
+  </div>
+
+  <div class="grid3">
+    <div class="card" style="margin:0"><h3>预计人天</h3><p class="mono" style="font-size:22px;margin:0">9.5 h</p><p class="hint" style="margin-top:4px">不含现场答辩</p></div>
+    <div class="card" style="margin:0"><h3>报价建议</h3><p class="mono" style="font-size:22px;margin:0">¥6,800</p><p class="hint" style="margin-top:4px">单次比稿档</p></div>
+    <div class="card" style="margin:0"><h3>赢面</h3><p style="font-size:22px;margin:0">中等</p><p class="hint" style="margin-top:4px">3 家比稿 · 客户有偏好</p></div>
+  </div>
+
+  ${gateBlock('G2',
+    '预算 120 万是客户的预算，跟你报多少无关。报价由你定，机器只给区间。',
+    `<button class="btn" onclick="doG2('go')">接下 · 报 ¥6,800</button>
+     <button class="btn danger" onclick="doG2('no')">不接 · 归档</button>`,
+    S.gates.G2==='pass')}`;
+}
+
+function stepS2(){
+  const a1 = S.a1, a2 = S.a2;
+  return `
+  <div class="eyebrow">S2 · 启动包 KICKOFF <span class="gate-tag">G3</span></div>
+  <h1>执行总监先出一页纸，你只需要回答「不确定的那几件事」</h1>
+  <p class="why">这是 v0.1 最贵的一道闸。<b>论点、模块、骨架一旦错了，后面所有 Agent 都在放大错误</b>——所以先在这里错，成本最低。</p>
+
+  <div class="card">
+    <h3>① 一句话论点</h3>
+    <p class="lead">「轻通勤」不是一种风格，是一天里两次切换的能力。</p>
+    <p class="hint">它不描述衣服，描述的是「从会议室到餐厅的那 10 分钟」。这决定了后面所有内容拍什么。</p>
+  </div>
+
+  <div class="card">
+    <h3>② 模块清单 · 含「为什么不要」</h3>
+    <p>
+      <span class="tag on">策略 ✅</span>
+      <span class="tag on">创意 ✅</span>
+      <span class="tag on">内容 ✅</span>
+      <span class="tag maybe">媒介 ⚠️ 只给量级</span>
+      <span class="tag off">电商 ❌</span>
+      <span class="tag off">直播 ❌</span>
+    </p>
+    <p class="hint" style="margin-top:6px">
+      不要媒介排期：brief 要求的是内容打法，投放中标后再定。<br>
+      不要电商：本次目标是品类心智，不是 GMV；写进去反而稀释主张。<br>
+      不要直播：预算结构撑不起，且与「两场切换」不匹配。
+    </p>
+  </div>
+
+  <div class="grid2">
+    <div class="card" style="margin:0">
+      <h3>③ 提案骨架 · 6 章 42 页</h3>
+      <table>
+        <tr><th>章节</th><th class="num">页</th></tr>
+        <tr><td>01 背景与挑战</td><td class="num">4</td></tr>
+        <tr><td>02 人群洞察</td><td class="num">6</td></tr>
+        <tr><td>03 策略主张</td><td class="num">6</td></tr>
+        <tr><td>04 创意与内容</td><td class="num">12</td></tr>
+        <tr><td>05 执行与排期</td><td class="num">8</td></tr>
+        <tr><td>06 预算与团队</td><td class="num">6</td></tr>
+      </table>
+      <p class="hint" style="margin-top:8px">必答项映射：① P12 · ② P16 · ③ P31 · ④ P22 · ⑤ P38</p>
+    </div>
+    <div class="card" style="margin:0">
+      <h3>④ 工时 · ⑤ 风险</h3>
+      <p class="mono" style="margin-bottom:4px">总工时 9.5h · 其中人工 5.8h</p>
+      <p class="hint" style="margin-bottom:10px">情报 2h / 策略 1.5h / 生产 3h / 合稿 2h / 验收 1h（含 AI 与人工）</p>
+      <ul class="check">
+        <li><span class="tick no">!</span><span>「轻通勤」若客户已有内部定义，论点会被推翻</span></li>
+        <li><span class="tick no">!</span><span>主推单品未定，创意方向无法收敛</span></li>
+        <li><span class="tick no">!</span><span>没有历史数据，预算分配只能给量级</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>⑥ 未决问题 · 2 条 A 类 / 2 条 C 类</h3>
+    <div class="q-item">
+      <span class="q-badge">A</span>
+      <div class="q-body">
+        <b>主推单品是西装外套，还是针织套装？</b>
+        <span>不回答，创意与 KOL 组合无法收敛</span>
+        <div class="choice">
+          <button class="${a1==='西装外套'?'sel':''}" onclick="pickA1('西装外套')">西装外套</button>
+          <button class="${a1==='针织套装'?'sel':''}" onclick="pickA1('针织套装')">针织套装</button>
+          <button class="${a1==='两个都做'?'sel':''}" onclick="pickA1('两个都做')">两个都做</button>
+        </div>
+      </div>
+    </div>
+    <div class="q-item">
+      <span class="q-badge">A</span>
+      <div class="q-body">
+        <b>「轻通勤」允许我们重新定义吗？</b>
+        <span>如果客户已有内部定义，论点要重写</span>
+        <div class="choice">
+          <button class="${a2==='允许重新定义'?'sel':''}" onclick="pickA2('允许重新定义')">允许重新定义</button>
+          <button class="${a2==='沿用客户定义'?'sel':''}" onclick="pickA2('沿用客户定义')">沿用客户定义</button>
+        </div>
+      </div>
+    </div>
+    <div class="q-item">
+      <span class="q-badge c">C</span>
+      <div class="q-body"><b>假设 KOL 采买占预算 60%</b><span>错了再改，不阻塞</span></div>
+    </div>
+    <div class="q-item">
+      <span class="q-badge c">C</span>
+      <div class="q-body"><b>假设抖音只做内容、不做投流</b><span>错了再改，不阻塞</span></div>
+    </div>
+  </div>
+
+  ${gateBlock('G3',
+    a1 && a2
+      ? '两条 A 类都答完了。确认后，执行总监按你的答案锁定论点和骨架。'
+      : '有 2 条 A 类未决 —— 按规则，这一关不能自动通过。请先回答上面两个问题。',
+    `<button class="btn" ${a1&&a2?'':'disabled'} onclick="doG3()">确认启动包 · 进情报</button>
+     <button class="btn alt" ${a1&&a2?'':'disabled'} onclick="redoG3()">重来</button>`,
+    false,
+    a1&&a2?'必须人工 → 已人工':'必须人工 · 未完成')}`;
+}
+
+function stepS3(){
+  return `
+  <div class="eyebrow">S3 · 情报 RESEARCH</div>
+  <h1>只查启动包圈定的范围，每条都要能点开</h1>
+  <p class="why">情报员的任务不是「多找点资料」，是<b>给三个候选论点准备弹药，同时证明哪些路走不通</b>。找不到就写「待补充」，不许编。</p>
+
+  <div class="evidence">
+    ${EVIDENCE.map(e=>`
+      <div class="ev">
+        <p>${e.claim}</p>
+        <footer><span class="src">${e.src||'—'}</span><span>${e.date}</span></footer>
+      </div>`).join('')}
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <h3>情报结论</h3>
+    <p>「轻通勤」这个词在平台侧仍空白，但「通勤穿搭」已是红海（优衣库占据）。<b>机会不在造词，在重新定义场景</b>——这正好支撑 S2 的论点。</p>
+    <p class="hint">成本 ¥8.4 · 耗时 38 分钟 · 8 条证据，1 条待补充</p>
+  </div>
+
+  <div class="gatecard" style="border-color:var(--line);background:#fff">
+    <h3 style="color:var(--ink-3)">无闸门 · 直接进入策略</h3>
+    <p class="ask">情报是弹药，不是决策点。方向由下一关定。</p>
+    <div class="actions">
+      <button class="btn" onclick="doS3()">进入策略</button>
+    </div>
+  </div>`;
+}
+
+function stepS4(){
+  return `
+  <div class="eyebrow">S4 · 策略 STRATEGY <span class="gate-tag">G4</span></div>
+  <h1>三个互斥的方向，每个都要能被一句话否掉</h1>
+  <p class="why">这一步不是选「最好的」，是选<b>你最愿意为它辩护的那个</b>。三个方向必须真的不同——同质化的三个方案等于一个。</p>
+
+  <div class="grid3">
+    ${STRATEGIES.map(s=>`
+      <div class="card strat ${S.chosen===s.id?'sel':''}" onclick="pickStrategy('${s.id}')">
+        <span class="pick">${S.chosen===s.id?'已选':'选这个'}</span>
+        <h4>${s.id} · ${s.name}</h4>
+        <p class="one">${s.one}</p>
+        <dl>
+          <dt>洞察</dt><dd>${s.insight}</dd>
+          <dt>证据</dt><dd>${s.proof}</dd>
+          <dt>预算</dt><dd>${s.budget}</dd>
+          <dt>风险</dt><dd>${s.risk}</dd>
+        </dl>
+      </div>`).join('')}
+  </div>
+
+  <div class="card" style="margin-top:2px">
+    <h3>策略总监的倾向</h3>
+    <p>推荐 <b>A · 一天两场</b>。理由：它是唯一能同时解释「工作日换装 2.1 次」和「办公室内容完播率低」的方向；B 会变成面料广告，C 会跑题。</p>
+    <p class="hint">推荐不等于决定。拍板权在 G4。</p>
+  </div>
+
+  ${gateBlock('G4',
+    S.chosen ? `已选 ${S.chosen} · ${STRATEGIES.find(s=>s.id===S.chosen).name}。确认后进入生产。` : '选一个方向。没选之前，创意和内容不会启动。',
+    `<button class="btn" ${S.chosen?'':'disabled'} onclick="doG4()">确认方向 · 进生产</button>`,
+    false)}`;
+}
+
+function stepS5(){
+  return `
+  <div class="eyebrow">S5 · 生产 PRODUCE</div>
+  <h1>v0.1 这一步是人做的，系统只保证「不做漏」</h1>
+  <p class="why">创意不该由 AI 定稿。<b>系统在这里的角色是清单和接口</b>——确保素材按骨架产出，且不偏离已确认的方向。</p>
+
+  <div class="card">
+    <h3>资产清单 · 按骨架 04 章</h3>
+    <ul class="check">
+      <li><span class="tick">✓</span><span>KV 概念 × 2（会议室光 / 餐厅光，同一件衣服）</span></li>
+      <li><span class="tick">✓</span><span>短视频脚本 × 3（早 8:40 / 午休 / 19:10）</span></li>
+      <li><span class="tick">✓</span><span>KOL 组合：通勤职场 3 + 生活方式 2 + 微穿搭 4</span></li>
+      <li><span class="tick">✓</span><span>内容日历：9 月上市 → 双 11 承接（12 周）</span></li>
+      <li><span class="tick wait">·</span><span>预算表 · 待你在合稿时填最后一列</span></li>
+    </ul>
+    <p class="hint" style="margin-top:8px">人工耗时 3.0h · 用了 Gamma 模板 + 自有 KV</p>
+  </div>
+
+  <div class="gatecard" style="border-color:var(--line);background:#fff">
+    <h3 style="color:var(--ink-3)">无闸门 · 直接进入合稿</h3>
+    <p class="ask">生产是人做的，验收在 S7 统一收口。</p>
+    <div class="actions"><button class="btn" onclick="doS5()">素材齐了 · 进合稿</button></div>
+  </div>`;
+}
+
+function stepS6(){
+  return `
+  <div class="eyebrow">S6 · 合稿 COMPOSE <span class="gate-tag">G5</span></div>
+  <h1>拼起来顺不顺，比每一页好不好更重要</h1>
+  <p class="why">合稿最容易出的不是错别字，是<b>前后打架</b>：第 3 页说轻通勤，第 27 页的 KOL 全是职场硬照。</p>
+
+  <div class="grid2">
+    <div class="card" style="margin:0">
+      <h3>骨架 vs 实际</h3>
+      <table>
+        <tr><th>章节</th><th class="num">计划</th><th class="num">实际</th></tr>
+        <tr><td>01 背景与挑战</td><td class="num">4</td><td class="num">4</td></tr>
+        <tr><td>02 人群洞察</td><td class="num">6</td><td class="num">6</td></tr>
+        <tr><td>03 策略主张</td><td class="num">6</td><td class="num">7</td></tr>
+        <tr><td>04 创意与内容</td><td class="num">12</td><td class="num">12</td></tr>
+        <tr><td>05 执行与排期</td><td class="num">8</td><td class="num">7</td></tr>
+        <tr><td>06 预算与团队</td><td class="num">6</td><td class="num">6</td></tr>
+        <tr><td><b>合计</b></td><td class="num"><b>42</b></td><td class="num"><b>42</b></td></tr>
+      </table>
+    </div>
+    <div class="card" style="margin:0">
+      <h3>一致性检查 · 3 项</h3>
+      <ul class="check">
+        <li><span class="tick">✓</span><span>必答项 5 条全部有对应页</span></li>
+        <li><span class="tick no">!</span><span>第 12 页主张「两场切换」，第 5 页人群写「职场女性」——范围窄了，已改为「通勤 + 轻社交」</span></li>
+        <li><span class="tick">✓</span><span>KOL 组合与「两场」一致（职场 3 / 生活 2 / 微穿搭 4）</span></li>
+      </ul>
+    </div>
+  </div>
+
+  ${gateBlock('G5','必答项全覆盖，前后矛盾已修 1 处。定稿后进入验收。',
+    `<button class="btn" onclick="doG5()">定稿 · 进验收</button>`)}`;
+}
+
+function stepS7(){
+  return `
+  <div class="eyebrow">S7 · 验收 QA</div>
+  <h1>验收官只回答「做对了吗」，不回答「能不能赢」</h1>
+  <p class="why">它给的不是「这页不太好」，是<b>可执行的修改指令</b>：哪一页、哪一句、改成什么。最多两轮，仍不过就交人。</p>
+
+  <div class="card">
+    <h3>验收结果 · 第 ${S.fixDone?2:1} 轮</h3>
+    <ul class="check">
+      <li><span class="tick">✓</span><span><b>必答项</b>：5/5 覆盖（P12 / P16 / P22 / P31 / P38）</span></li>
+      <li><span class="tick">✓</span><span><b>页数</b>：42 / 45，符合硬性上限</span></li>
+      <li><span class="tick">✓</span><span><b>策略—创意一致</b>：KV 与脚本均围绕「两场切换」</span></li>
+      <li>
+        <span class="tick ${S.fixDone?'':'no'}">${S.fixDone?'✓':'!'}</span>
+        <span><b>合规</b>：P9「最显瘦的通勤单品」命中绝对化用语；P18「显瘦」需加「视觉」限定。${S.fixDone?' <b style="color:var(--ok)">已改</b>：改为「更利落的通勤选择」/「视觉显瘦」。':''}</span>
+      </li>
+      <li>
+        <span class="tick ${S.fixDone?'':'no'}">${S.fixDone?'✓':'!'}</span>
+        <span><b>答辩 Q&amp;A</b>：Top 10 问题已备，缺「为什么不投硬广」一题${S.fixDone?' · 已有答案':' · 待补'}</span>
+      </li>
+    </ul>
+    ${S.fixDone?'':'<div class="actions" style="margin-top:12px"><button class="btn" onclick="applyFix()">应用修改指令</button><span class="hint">第 1 轮 · 还剩 1 轮</span></div>'}
+  </div>
+
+  <div class="gatecard" style="border-color:var(--line);background:#fff">
+    <h3 style="color:var(--ink-3)">无闸门 · 验收自己放行</h3>
+    <p class="ask">${S.fixDone?'全部通过，可以交付。':'还有 2 项未通过 —— 验收官不会放行。'}</p>
+    <div class="actions">
+      <button class="btn" ${S.fixDone?'':'disabled'} onclick="doS7()">验收通过 · 进交付</button>
+    </div>
+  </div>`;
+}
+
+function stepS8(){
+  return `
+  <div class="eyebrow">S8 · 交付 DELIVER</div>
+  <h1>客户拿到就能讲，不需要你再解释一遍</h1>
+  <p class="why">交付不是发文件，是<b>让对方能独立使用</b>。所以除了 deck，还有预算表、自检报告和答辩 Q&amp;A。</p>
+
+  <div class="card">
+    <h3>交付包 · 5 件</h3>
+    <ul class="check">
+      <li><span class="tick">✓</span><span>提报 deck · 42 页 · PDF + 可编辑源文件</span></li>
+      <li><span class="tick">✓</span><span>预算表 · 120 万分项（含 KOL 采买标注为待定）</span></li>
+      <li><span class="tick">✓</span><span>自检报告 · 1 页（必答项覆盖 + 合规说明）</span></li>
+      <li><span class="tick">✓</span><span>答辩 Q&amp;A · Top 10 问题 + 建议答法</span></li>
+      <li><span class="tick">✓</span><span>内容日历 · 9 月 → 双 11 承接（12 周）</span></li>
+    </ul>
+  </div>
+
+  <div class="grid2">
+    <div class="card" style="margin:0"><h3>本项目累计</h3><p class="mono" style="margin:0;font-size:18px">成本 ¥${S.cost.toFixed(1)} · 人时 ${S.hours.toFixed(1)}h</p><p class="hint" style="margin-top:6px">北极星：成本 &lt; ¥50，人时 &lt; 6h</p></div>
+    <div class="card" style="margin:0"><h3>交付时间</h3><p style="margin:0;font-size:18px">收到 brief 后 22 小时</p><p class="hint" style="margin-top:6px">窗口：24h</p></div>
+  </div>
+
+  <div class="gatecard" style="border-color:var(--line);background:#fff">
+    <h3 style="color:var(--ink-3)">无闸门 · 交付即进入等待结果</h3>
+    <p class="ask">真正的产品差异在下一关：赢了为什么赢。</p>
+    <div class="actions"><button class="btn" onclick="doS8()">交付客户</button></div>
+  </div>`;
+}
+
+function stepS9(){
+  return `
+  <div class="eyebrow">S9 · 复盘 DEBRIEF <span class="gate-tag">G6</span></div>
+  <h1>不记录输赢原因，下一单还是从零开始</h1>
+  <p class="why">这是唯一让产品越用越强的一步。<b>没有它，前面 9 步只是一个更贵的生成器。</b></p>
+
+  <div class="card">
+    <h3>结果</h3>
+    <p class="lead" style="color:var(--ok)">中标</p>
+    <p class="hint">评委原话：「只有你们把『轻通勤』讲成了一个具体的时间场景，其他两家还在讲风格。」</p>
+  </div>
+
+  <div class="card">
+    <h3>复盘三问</h3>
+    <div class="q-item">
+      <span class="q-badge c">1</span>
+      <div class="q-body"><b>为什么赢？</b><span>把抽象词翻译成「一天两次切换」的具体场景，是三家唯一做这件事的。</span></div>
+    </div>
+    <div class="q-item">
+      <span class="q-badge c">2</span>
+      <div class="q-body"><b>哪个环节起了作用？</b><span>G3 —— 你否掉了初版「通勤穿搭升级」的论点，改成了场景切换。</span></div>
+    </div>
+    <div class="q-item">
+      <span class="q-badge c">3</span>
+      <div class="q-body"><b>下次改什么？</b><span>情报阶段多花 30 分钟验证「品类词是否已被占领」，这次是碰巧的。</span></div>
+    </div>
+  </div>
+
+  ${gateBlock('G6','复盘卡 3 问已填。存档后，这一单进入档案，v0.2 起可被检索。',
+    `<button class="btn" onclick="doG6()">存档并关闭项目</button>`)}`;
+}
+
+function stepDone(){
+  return `
+  <div class="done-hero">
+    <h2>项目已关闭 · 档案已写入</h2>
+    <p>这一单的论点、策略、输赢原因，会成为下一单先例检索的第一条数据。</p>
+  </div>
+
+  <div class="card">
+    <h3>存档卡 · Outcome</h3>
+    <dl class="kv">
+      <dt>行业 / 类型</dt><dd>服装 · 女装 / 上新传播比稿</dd>
+      <dt>预算带</dt><dd>100–200 万</dd>
+      <dt>结果</dt><dd style="color:var(--ok);font-weight:600">中标</dd>
+      <dt>选用方向</dt><dd>A · 一天两场</dd>
+      <dt>关键转折</dt><dd>G3 否决初版论点「通勤穿搭升级」</dd>
+      <dt>可复用</dt><dd>场景切换的论证结构 · 必答项映射表</dd>
+      <dt>不可复用</dt><dd>「轻通勤」这个词（已被客户占用）</dd>
+      <dt>检索标签</dt><dd><span class="tag">服装</span><span class="tag">上新</span><span class="tag">场景切换</span><span class="tag">25-32 女性</span></dd>
+    </dl>
+  </div>
+
+  <div class="card">
+    <h3>如果下一单是相似项目，系统会先给你这 3 张卡</h3>
+    <p class="hint">v0.2 行为，这里只是示意：2 个赢的 + 1 个输的，先看反例。</p>
+    <ul class="check">
+      <li><span class="tick no">✕</span><span>反例：2026 某运动品牌「通勤也能穿」—— 输了，因为仍在讲风格而非场景。</span></li>
+      <li><span class="tick">✓</span><span>正例：本单 —— 赢了，场景化定义 + 必答项前置映射。</span></li>
+      <li><span class="tick wait">○</span><span>意外项：某母婴品牌用「一天两场」讲职场妈妈，跑了第二。</span></li>
+    </ul>
+  </div>
+
+  <div class="gatecard" style="border-color:var(--line);background:#fff">
+    <h3 style="color:var(--ink-3)">演示结束</h3>
+    <p class="ask">如果你想改某一步的产物形态，直接在这里说哪一步。</p>
+    <div class="actions"><button class="btn" onclick="resetAll()">从头再走一遍</button></div>
+  </div>`;
+}
+
+function stepRejected(){
+  return `
+  <div class="eyebrow">S1 · 判断 QUALIFY</div>
+  <h1>这一单不接，也要留下理由</h1>
+  <p class="why">No-Go 不是失败，是<b>把有限的人天留给赢面更高的单子</b>。理由归档后，下次遇到同类会提醒你。</p>
+
+  <div class="card">
+    <h3>归档卡</h3>
+    <dl class="kv">
+      <dt>结论</dt><dd>No-Go</dd>
+      <dt>理由</dt><dd>客户已有明确偏好 + 三家比稿 + 无历史数据，人天投入与赢面不匹配</dd>
+      <dt>价格</dt><dd>低于 ¥6,800 不做</dd>
+      <dt>下次条件</dt><dd>若客户愿意开放历史数据，或改为「只做策略诊断」，可重新评估</dd>
+    </dl>
+  </div>
+
+  <div class="gatecard" style="border-color:var(--line);background:#fff">
+    <h3 style="color:var(--ink-3)">已归档</h3>
+    <p class="ask">这条记录同样进档案——输的单和拒的单，都是先例。</p>
+    <div class="actions"><button class="btn alt" onclick="undoReject()">回到判断</button></div>
+  </div>`;
+}
+
+function gateBlock(gate, ask, buttons, done, note){
+  const meta = GATE_META[gate];
+  return `
+  <div class="gatecard" style="${done?'opacity:.6':''}">
+    <h3>闸门 ${gate} · ${meta.at}${note?' · '+note:''}</h3>
+    <p class="ask">${ask}</p>
+    <div class="actions">${done?'<span class="hint">已通过 ✓</span>':buttons}</div>
+  </div>`;
+}
+
+/* ------------------------------------------------------------------ *
+ * 交互
+ * ------------------------------------------------------------------ */
+function doG1(){ pass('G1','任务书已确认'); advance(1,1.2,0.4); render(); }
+function doG2(kind){
+  if(kind==='no'){ S.rejected=true; log('G2 · No-Go，项目归档'); render(); return; }
+  pass('G2',`报价 ${fmtMoney(S.quote)}`); advance(2,0.6,0.2); render();
+}
+function pickA1(v){ S.a1=v; log('G3 · 回答 A1：'+v); render(); }
+function pickA2(v){ S.a2=v; log('G3 · 回答 A2：'+v); render(); }
+function doG3(){ if(!(S.a1&&S.a2)) return; pass('G3',`A1=${S.a1}，A2=${S.a2}`); advance(3,3.1,0.4); render(); }
+function redoG3(){ S.a1=null; S.a2=null; log('G3 · 重来，重新给三个方向'); render(); }
+function doS3(){ advance(4,8.4,0.4); render(); }
+function pickStrategy(id){ S.chosen=id; render(); }
+function doG4(){
+  if(!S.chosen) return;
+  const name = STRATEGIES.find(s=>s.id===S.chosen).name;
+  pass('G4','选定 '+S.chosen+' · '+name); advance(5,7.9,1.0); render();
+}
+function doS5(){ advance(6,0,1.8); render(); }
+function doG5(){ pass('G5','定稿 42 页'); advance(7,1.9,0.9); render(); }
+function applyFix(){ S.fixDone=true; log('验收 · 应用 2 条修改指令'); S.cost+=1.6; S.hours+=0.2; render(); }
+function doS7(){ advance(8,0.4,0.3); render(); }
+function doS8(){ S.delivered=true; advance(9,0,0.2); render(); }
+function doG6(){ pass('G6','复盘卡已填，项目关闭'); S.archived=true; log('G6 · 档案已写入'); render(); }
+function undoReject(){ S.rejected=false; S.gates.G2='pending'; render(); }
+function goStep(i){
+  if(S.rejected) S.rejected=false;
+  S.step=i; render();
+}
+function resetAll(){ S=initial(); log('演示重置'); render(); }
+el('reset').onclick = resetAll;
+
+/* ------------------------------------------------------------------ *
+ * 渲染
+ * ------------------------------------------------------------------ */
+function renderRail(){
+  const done = S.archived ? 10 : S.step;
+  el('rail').innerHTML = `<h4>项目状态</h4>` + STEPS.map((s,i)=>{
+    const cls = i===S.step && !S.archived ? 'current' : (i<done ? 'done' : '');
+    const gateState = s.gate && S.gates[s.gate]==='pass' ? ' ✓' : '';
+    return `<button class="step ${cls}" onclick="goStep(${i})">
+      <span class="dot">${i<done?'✓':s.code.slice(1)}</span>
+      <span class="lab">${s.title}${s.gate?`<span class="gate">${s.gate}${gateState}</span>`:''}</span>
+    </button>`;
+  }).join('');
+}
+
+function renderSide(){
+  const aCount = (S.a1?0:1) + (S.a2?0:1);
+  const bCount = 0;
+  const cCount = 2;
+  el('side').innerHTML = `
+    <div class="panel">
+      <h4>项目卡</h4>
+      <dl class="mini">
+        <dt>客户</dt><dd>MORII</dd>
+        <dt>预算</dt><dd>120 万</dd>
+        <dt>提报</dt><dd>3 天后</dd>
+        <dt>报价</dt><dd>${fmtMoney(S.quote)}</dd>
+        <dt>当前</dt><dd>${S.archived?'已关闭':STEPS[S.step].code}</dd>
+      </dl>
+    </div>
+
+    <div class="panel">
+      <h4>未决问题</h4>
+      <div class="counter">
+        <div class="a"><b>${aCount}</b><span>A 必须答</span></div>
+        <div><b>${bCount}</b><span>B 已定</span></div>
+        <div><b>${cCount}</b><span>C 假设</span></div>
+      </div>
+      <p class="empty" style="margin-top:9px">${aCount>0?'有 A 类未决 → G3 不能自动通过':'A 类已清 → 可进入下一阶段'}</p>
+    </div>
+
+    <div class="panel">
+      <h4>决策日志</h4>
+      ${S.log.length? S.log.slice(0,7).map(l=>`<div class="logline"><b>${l.t}</b>${l.text}</div>`).join('') : '<p class="empty">还没有决策。每一次点击都会记一条。</p>'}
+    </div>
+
+    <div class="panel">
+      <h4>闸门</h4>
+      <dl class="mini">
+        ${Object.entries(S.gates).map(([g,v])=>`<dt>${g}</dt><dd style="color:${v==='pass'?'var(--ok)':'var(--ink-3)'}">${v==='pass'?'通过':'待定'}</dd>`).join('')}
+      </dl>
+    </div>`;
+}
+
+function render(){
+  const banner = S.banner && S.step===0 ? `
+    <div class="banner">
+      <span>👉</span>
+      <div><b>这是一个可点的流程原型。</b> 左边是状态轨，中间是每一步的产物，右下角是闸门。<br>
+      你现在在 <b>S0 接单</b>。点「确认任务书」往下走，注意 S2 的 G3 闸门——那是整套东西里最贵的一关。</div>
+      <button class="x" onclick="document.querySelector('.banner').remove()">×</button>
+    </div>` : '';
+
+  let body;
+  if(S.rejected) body = stepRejected();
+  else if(S.archived) body = stepDone();
+  else body = [stepS0,stepS1,stepS2,stepS3,stepS4,stepS5,stepS6,stepS7,stepS8,stepS9][S.step]();
+
+  el('stage').innerHTML = banner + body;
+
+  const names = ['接单中','判断中','启动包','情报','策略','生产','合稿','验收','交付','复盘'];
+  el('statePill').innerHTML = `<i></i>${S.archived?'已归档':(S.rejected?'已归档':names[S.step])}`;
+  el('mCost').textContent = '¥' + S.cost.toFixed(1);
+  el('mHours').textContent = S.hours.toFixed(1) + 'h';
+
+  renderRail(); renderSide();
+}
+
+render();
+</script>
+</body>
+</html>
