@@ -225,6 +225,26 @@
   .tick.no{background:var(--accent-soft);color:var(--accent)}
   .tick.wait{background:#f1eee8;color:#a9a49b}
 
+  /* stage QA strip */
+  .qa{
+    border:1px solid var(--line);border-radius:12px;padding:13px 15px;
+    margin-top:16px;background:#fcfbf8;
+  }
+  .qa.pass{background:#f8fbf9;border-color:#dce9e1}
+  .qa.fix{background:#fdf7f4;border-color:#ecd3c9}
+  .qa-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .qa-role{
+    font:700 9.5px/1 var(--mono);letter-spacing:.08em;color:#fff;
+    background:var(--ink);padding:4px 6px;border-radius:4px;
+  }
+  .qa-head b{font-size:12.5px}
+  .qa-status{margin-left:auto;font-size:11px;color:var(--ink-3);white-space:nowrap}
+  .qa.pass .qa-status{color:var(--ok);font-weight:600}
+  .qa.fix .qa-status{color:var(--accent);font-weight:600}
+  .qa ul{list-style:none;margin:0;padding:0}
+  .qa li{display:flex;gap:8px;font-size:12px;color:var(--ink-2);padding:4px 0;line-height:1.5}
+  .qa .hint{margin-top:8px}
+
   /* quote form */
   .qrow{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap}
   .qrow label{font-size:12px;color:var(--ink-3)}
@@ -384,7 +404,7 @@ const STEPS = [
   {code:'S3', title:'策略', gate:'G3'},
   {code:'S4', title:'生产', gate:null},
   {code:'S5', title:'合稿', gate:'G4'},
-  {code:'S6', title:'验收', gate:null},
+  {code:'S6', title:'终验', gate:null},
   {code:'S7', title:'交付', gate:null},
   {code:'S8', title:'复盘', gate:'G5'}
 ];
@@ -436,6 +456,7 @@ const initial = () => ({
   chosen:null,
   prodV:1,
   prodNote:'',
+  stratFix:false,
   fixDone:false,
   delivered:false,
   archived:false,
@@ -622,6 +643,13 @@ function stepS1(){
     </div>
   </div>
 
+  ${qaStrip('启动',[
+    {ok:'pass',t:'8 个字段齐全（论点 / 模块 / 骨架 / 工时 / 风险 / 未决问题 / 决策日志 / 放行建议）'},
+    {ok:'pass',t:'骨架 42 页，未超 brief 硬性上限 45 页'},
+    {ok:'pass',t:'必答项 5/5 已映射到具体页码'},
+    {ok:'pass',t:'未决问题已分类（A×2 / C×2），没有「需进一步了解」这类废话'}
+  ], null, null, '验收官只查「对不对、全不全」。方向对不对，是 G2 的事。')}
+
   ${gateBlock('G2',
     a1 && a2
       ? '两条 A 类都答完了。确认后，执行总监按你的答案锁定论点和骨架。'
@@ -654,6 +682,13 @@ function stepS2(){
     <p>「轻通勤」这个词在平台侧仍空白，但「通勤穿搭」已是红海（优衣库占据）。<b>机会不在造词，在重新定义场景</b>——这正好支撑启动时定的论点。</p>
     <p class="hint">成本 ¥8.4 · 耗时 38 分钟 · 8 条证据，1 条待补充</p>
   </div>
+
+  ${qaStrip('调研',[
+    {ok:'pass',t:'8 条证据全部可点开，来源与日期齐全'},
+    {ok:'pass',t:'时效 < 90 天（历史对比资料除外）'},
+    {ok:'pass',t:'覆盖启动圈定的 4 个方向：竞品 / 人群 / 平台 / 品类词'},
+    {ok:'warn',t:'1 条「客户历史数据」标为待补充 —— 不阻塞，但会进自检报告的风险页'}
+  ], null, null, '调研的验收只看「来源真不真、覆盖全不全」，不判断结论对不对。')}
 
   <div class="gatecard" style="border-color:var(--line);background:#fff">
     <h3 style="color:var(--ink-3)">无闸门 · 直接进入策略</h3>
@@ -694,9 +729,20 @@ function stepS3(){
     <p class="hint">推荐不等于决定。拍板权在 G3。</p>
   </div>
 
+  ${qaStrip('策略',[
+    {ok:'pass',t:'3 个方向互斥，每个都能一句话说清'},
+    {ok:S.stratFix?'pass':'fix',t:S.stratFix
+      ? '方向 C 已补到 2 条证据（下班时段完播率 + 竞品未占位）'
+      : '方向 C 只有 1 条证据，要求 ≥ 2 —— 不补完不能进生产'},
+    {ok:'pass',t:'未超出启动时定下的模块边界（没有偷偷加媒介排期）'},
+    {ok:'pass',t:'每个方向都给了预算量级，不是空话'}
+  ], S.stratFix?null:'补齐 C 的证据','fixStrat')}
+
   ${gateBlock('G3',
-    S.chosen ? `已选 ${S.chosen} · ${STRATEGIES.find(s=>s.id===S.chosen).name}。确认后进入生产。` : '选一个方向。没选之前，生产不会启动。',
-    `<button class="btn" ${S.chosen?'':'disabled'} onclick="doG3()">确认方向 · 进生产</button>`,
+    !S.chosen ? '选一个方向。没选之前，生产不会启动。'
+    : (!S.stratFix ? '方向已选，但阶段验收还有 1 项未通过 —— 先补齐证据，闸门不开放。'
+    : `已选 ${S.chosen} · ${STRATEGIES.find(s=>s.id===S.chosen).name}。确认后进入生产。`),
+    `<button class="btn" ${S.chosen && S.stratFix?'':'disabled'} onclick="doG3()">确认方向 · 进生产</button>`,
     false)}`;
 }
 
@@ -736,6 +782,19 @@ function stepS4(){
     <p class="hint" style="margin-top:10px">成本 ¥6.2 · 生成耗时 2 分 40 秒 · 人工 ${v2?'0.4':'0.3'}h</p>
   </div>
 
+  <div class="card">
+    <h3>生产通道 · 谁在出活</h3>
+    <table>
+      <tr><th>资产</th><th>通道</th><th>模型</th><th class="num">成本</th><th>状态</th></tr>
+      <tr><td>文案 / 脚本</td><td>文本</td><td class="mono">Claude · DeepSeek</td><td class="num">¥1.8</td><td><span class="tag on">已接</span></td></tr>
+      <tr><td>KV / 海报</td><td>图像</td><td class="mono">Seedream 4.5</td><td class="num">¥3.2</td><td><span class="tag on">已接</span></td></tr>
+      <tr><td>Deck 排版</td><td>模板引擎</td><td class="mono">python-pptx</td><td class="num">¥0.1</td><td><span class="tag on">已接</span></td></tr>
+      <tr><td>短视频成片</td><td>视频</td><td class="mono">Seedance / Kling</td><td class="num">—</td><td><span class="tag maybe">v0.2 接口</span></td></tr>
+      <tr><td>配音</td><td>TTS</td><td class="mono">火山 / 讯飞</td><td class="num">—</td><td><span class="tag maybe">v0.2 接口</span></td></tr>
+    </table>
+    <p class="hint" style="margin-top:8px">所有通道走同一个 <span class="mono">generate(asset_type, prompt, refs)</span> 接口。换模型是配置，不是改代码。</p>
+  </div>
+
   ${v2 ? `
   <div class="card" style="border-color:#d8e6dc;background:#f8fbf9">
     <h3>本轮处理结果</h3>
@@ -756,6 +815,13 @@ function stepS4(){
       <span class="hint">只重跑受影响的项，不整包重来</span>
     </div>
   </div>`}
+
+  ${qaStrip('生产',[
+    {ok:'pass',t:'4 项资产齐全，与骨架 04 章逐项对应'},
+    {ok:'pass',t:'KV / 脚本均落在已选策略 A（一天两场）上'},
+    {ok:'pass',t:'版权扫描：字体 0 风险、肖像 0 风险、未出现他人 Logo'},
+    {ok:'warn',t:'视频成片与配音通道未接，本次只交付脚本与分镜 —— 已在交付说明里标注'}
+  ], null, null, '生产验收查的是「齐不齐、跑没跑偏、有没有版权雷」，不评价创意好不好。')}
 
   <div class="gatecard" style="border-color:var(--line);background:#fff">
     <h3 style="color:var(--ink-3)">无闸门 · 生产自己收敛</h3>
@@ -800,6 +866,13 @@ function stepS5(){
     </div>
   </div>
 
+  ${qaStrip('合稿',[
+    {ok:'pass',t:'必答项 5/5 仍可定位（P12 / P16 / P22 / P31 / P38）'},
+    {ok:'pass',t:'页数 42，未超 45'},
+    {ok:'pass',t:'前后矛盾已标出 3 处，等你确认，不是替你改'},
+    {ok:'pass',t:'品牌色、字体、页眉页脚与客户 VI 一致'}
+  ], null, null, '合稿验收只管「一致性与规范」，定稿与否是 G4。')}
+
   ${gateBlock('G4','必答项全覆盖，AI 已标出 3 处不一致并给出改法。定稿后进入验收。',
     `<button class="btn" onclick="doG4()">确认 3 处 · 定稿</button>
      <button class="btn alt" onclick="doG4()">先不改 · 直接定稿</button>`)}`;
@@ -810,9 +883,9 @@ function stepS5(){
  * ------------------------------------------------------------------ */
 function stepS6(){
   return `
-  <div class="eyebrow">S6 · 验收 QA</div>
-  <h1>验收官只回答「做对了吗」，不回答「能不能赢」</h1>
-  <p class="why">它给的不是「这页不太好」，是<b>可执行的修改指令</b>：哪一页、哪一句、改成什么。最多两轮，仍不过就交人。</p>
+  <div class="eyebrow">S6 · 终验 FINAL QA</div>
+  <h1>终验：整份稿子的最后一关</h1>
+  <p class="why">阶段验收每个阶段都跑（启动 / 调研 / 策略 / 生产 / 合稿）。<b>终验只跑一次</b>，查的是「整份东西合起来还成不成立」——必答项、合规、答辩会不会被问倒。</p>
 
   <div class="card">
     <h3>验收结果 · 第 ${S.fixDone?2:1} 轮</h3>
@@ -865,6 +938,13 @@ function stepS7(){
     <div class="card" style="margin:0"><h3>本项目累计</h3><p class="mono" style="margin:0;font-size:18px">成本 ¥${S.cost.toFixed(1)} · 人时 ${S.hours.toFixed(1)}h</p><p class="hint" style="margin-top:6px">北极星：成本 &lt; ¥50，人时 &lt; 6h</p></div>
     <div class="card" style="margin:0"><h3>交付时间</h3><p style="margin:0;font-size:18px">收到 brief 后 21 小时</p><p class="hint" style="margin-top:6px">窗口：24h</p></div>
   </div>
+
+  ${qaStrip('交付',[
+    {ok:'pass',t:'5 件套齐全（deck / 预算表 / 自检报告 / 答辩 Q&A / 内容日历）'},
+    {ok:'pass',t:'命名规范统一，客户不需要问「哪个是最终版」'},
+    {ok:'pass',t:'内部批注、标记、备注已全部清除'},
+    {ok:'pass',t:'预算表里 KOL 采买标为「待定」，没有替客户做决定'}
+  ], null, null, '交付验收查的是「能不能直接发出去」。')}
 
   <div class="gatecard" style="border-color:var(--line);background:#fff">
     <h3 style="color:var(--ink-3)">无闸门 · 交付即进入等待结果</h3>
@@ -969,6 +1049,29 @@ function stepRejected(){
   </div>`;
 }
 
+function qaStrip(stage, items, fixLabel, fixHandler, note){
+  const fixes = items.filter(i=>i.ok==='fix').length;
+  const warns = items.filter(i=>i.ok==='warn').length;
+  const cls = fixes ? 'fix' : (warns ? '' : 'pass');
+  const status = fixes
+    ? `${fixes} 项未通过`
+    : (warns ? `${warns} 项提醒` : `${items.length}/${items.length} 通过`);
+  const icon = ok => ok==='fix' ? '<span class="tick no">!</span>'
+    : ok==='warn' ? '<span class="tick wait">○</span>'
+    : '<span class="tick">✓</span>';
+  return `
+  <div class="qa ${cls}">
+    <div class="qa-head">
+      <span class="qa-role">验收官</span>
+      <b>${stage} · 阶段验收</b>
+      <span class="qa-status">${status}</span>
+    </div>
+    <ul>${items.map(i=>`<li>${icon(i.ok)}<span>${i.t}</span></li>`).join('')}</ul>
+    ${fixes && fixLabel ? `<div class="actions" style="margin-top:10px"><button class="btn" onclick="${fixHandler}()">${fixLabel}</button></div>` : ''}
+    ${note?`<p class="hint">${note}</p>`:''}
+  </div>`;
+}
+
 function gateBlock(gate, ask, buttons, done, note){
   const meta = GATE_META[gate];
   return `
@@ -998,9 +1101,10 @@ function doG2(){ if(!(S.a1&&S.a2)) return; pass('G2',`A1=${S.a1}，A2=${S.a2}`);
 function redoG2(){ S.a1=null; S.a2=null; log('G2 · 重来，重新给方向'); render(); }
 
 function doS2(){ advance(3,8.4,0.4); render(); }
+function fixStrat(){ S.stratFix=true; log('验收 · 补齐方向 C 的证据'); S.cost+=0.6; S.hours+=0.1; render(); }
 function pickStrategy(id){ S.chosen=id; render(); }
 function doG3(){
-  if(!S.chosen) return;
+  if(!S.chosen || !S.stratFix) return;
   const name = STRATEGIES.find(s=>s.id===S.chosen).name;
   pass('G3','选定 '+S.chosen+' · '+name); advance(4,7.9,1.0); render();
 }
@@ -1091,8 +1195,8 @@ function render(){
   const banner = S.banner && S.step===0 ? `
     <div class="banner">
       <span>👉</span>
-      <div><b>这是一个可点的流程原型。</b> 接单和判断已经合成一步，生产改成 AI 出活、你提意见。<br>
-      重点看 <b>S1 启动</b> 的 G2 闸门，和 <b>S4 生产</b> 的重生成循环。</div>
+      <div><b>这是一个可点的流程原型。</b> 接单和判断已合成一步；生产是 AI 出活、你提意见。<br>
+      每个阶段收口都有<b>「验收官」</b>先查完整性，再进人工闸门——注意 S3 策略那关，验收不过闸门不开放。</div>
       <button class="x" onclick="document.querySelector('.banner').remove()">×</button>
     </div>` : '';
 
