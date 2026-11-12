@@ -1,0 +1,36 @@
+# macOS
+.DS_Store
+._*
+
+# 环境与密钥
+.env
+.env.*
+!.env.example
+
+# 依赖
+node_modules/
+.pnpm-store/
+
+# 构建产物
+dist/
+build/
+.next/
+out/
+
+# 客户资料与生成物：绝不入库
+data/*
+!data/.gitkeep
+briefs/
+clients/
+uploads/
+generated/
+decks/
+exports/
+
+# 日志
+*.log
+npm-debug.log*
+
+# 临时文件
+*.tmp
+*.local
