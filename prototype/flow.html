@@ -269,10 +269,51 @@
   .fb:focus{outline:2px solid #ead6cf;border-color:#d9b3a7}
 
   /* ---------- right rail ---------- */
-  .side{
-    position:sticky;top:57px;padding:22px 20px 40px 0;
-    max-height:calc(100vh - 57px);overflow:auto;
-  }
+  /* ---------- right rail (chat) ---------- */
+  .side{padding:18px 18px 24px 0}
+  .chat{position:sticky;top:57px;height:calc(100vh - 76px);display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .chat-top{padding:12px 14px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px}
+  .chat-top b{font-size:12.5px}
+  .chat-top .code{font:600 9.5px/1 var(--mono);color:var(--accent);background:var(--accent-soft);padding:4px 6px;border-radius:4px;letter-spacing:.06em}
+  .chat-top .meta{margin-left:auto;font:11px var(--mono);color:var(--ink-3);text-align:right;line-height:1.3}
+  .msgs{flex:1;overflow:auto;display:flex;flex-direction:column;gap:9px;padding:12px 13px}
+  .msg{max-width:94%;font-size:12.5px;line-height:1.62;padding:9px 11px;border-radius:11px;background:#fbfaf7;border:1px solid var(--line-2)}
+  .msg .who{display:block;font-size:9.5px;letter-spacing:.1em;color:var(--ink-3);margin-bottom:3px}
+  .msg.me{align-self:flex-end;background:var(--ink);color:#fff;border-color:var(--ink)}
+  .msg.me .who{color:#bdb6aa}
+  .msg.sys{align-self:center;background:none;border:0;color:var(--ink-3);font-size:10.5px;padding:1px;text-align:center}
+  .msg.agent .who{color:var(--accent)}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 13px 8px}
+  .chips button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 10px;font-size:11.5px;color:var(--ink-2)}
+  .chips button:hover{border-color:#cfc8bb;color:var(--ink)}
+  .chat-in{display:flex;gap:8px;align-items:flex-end;padding:10px 12px;border-top:1px solid var(--line);background:#fff}
+  .chat-in textarea{flex:1;min-height:38px;max-height:96px;resize:none;border:1px solid var(--line);border-radius:10px;padding:9px 11px;font:12.5px/1.5 inherit;background:#fff;color:var(--ink)}
+  .chat-in textarea:focus{outline:2px solid #ead6cf;border-color:#d9b3a7}
+  .chat-in button{border:0;border-radius:9px;background:var(--ink);color:#fff;padding:10px 13px;font-size:12.5px;font-weight:600}
+
+  /* ---------- terminal ---------- */
+  .term{margin-bottom:18px;border-radius:13px;overflow:hidden;border:1px solid #262420;background:#161512;color:#d9d3c7;font-family:var(--mono);box-shadow:0 12px 30px -22px rgba(0,0,0,.5)}
+  .term-head{display:flex;align-items:center;gap:9px;padding:9px 12px;background:#1d1b17;border-bottom:1px solid #2a2721;font-size:10.5px;color:#8d8579;letter-spacing:.03em}
+  .lights{display:flex;gap:4px}
+  .lights i{width:8px;height:8px;border-radius:50%;background:#3a352c}
+  .lights i:nth-child(1){background:#b8533b}
+  .lights i:nth-child(2){background:#b08a3a}
+  .lights i:nth-child(3){background:#4c7a4f}
+  .term-live{margin-left:auto;color:#8fbf93;white-space:nowrap}
+  .skip{border:0;background:#2a2721;color:#a8a091;border-radius:5px;padding:3px 7px;font:10px var(--mono);cursor:pointer}
+  .skip:hover{background:#332f28;color:#d9d3c7}
+  .term-body{height:200px;overflow:auto;padding:10px 12px;font-size:11.5px;line-height:1.95}
+  .ln{display:flex;gap:9px;animation:lnin .16s ease}
+  @keyframes lnin{from{opacity:0;transform:translateY(2px)}to{opacity:1;transform:none}}
+  .ln .t{color:#6b655a;flex:0 0 auto}
+  .ln .a{color:#dfb385;flex:0 0 66px}
+  .ln .m{color:#cbc4b6;min-width:0}
+  .ln.ok .m{color:#9cc8a6}
+  .ln.warn .m{color:#dfb385}
+  .ln.bad .m{color:#de8a72}
+  .product{transition:opacity .3s}
+  .product.dim{opacity:.3}
+
   .panel{background:#fff;border:1px solid var(--line);border-radius:13px;padding:14px 15px;margin-bottom:12px}
   .panel h4{margin:0 0 10px;font-size:10.5px;letter-spacing:.14em;color:var(--ink-3);font-weight:600}
   .mini{display:grid;grid-template-columns:1fr auto;gap:5px 10px;font-size:12px}
@@ -312,29 +353,32 @@
     .metric span{font-size:9.5px;letter-spacing:0}
   }
   @media (max-width:1180px){
-    .shell{grid-template-columns:196px minmax(0,1fr)}
-    .side{display:none}
-    .stage{padding:24px 22px 80px}
+    .shell{grid-template-columns:200px minmax(0,1fr) 300px}
+    .stage{padding:24px 20px 80px}
+    .term-body{height:176px}
+    .ln .a{flex:0 0 58px;font-size:10.5px}
   }
-  @media (max-width:860px){
-    .shell{grid-template-columns:164px minmax(0,1fr)}
-    .rail{padding:18px 8px 40px 12px}
-    .step .lab{font-size:11.5px}
+  @media (max-width:980px){
+    .shell{grid-template-columns:minmax(0,1fr) 292px}
+    .rail{display:none}
+    .stage{padding:20px 16px 70px}
     .grid3{grid-template-columns:1fr 1fr}
   }
   @media (max-width:700px){
     .shell{grid-template-columns:1fr}
-    .rail{display:none}
-    .stage{padding:18px 16px 80px}
+    .stage{padding:16px 14px 30px}
     .grid2,.grid3,.evidence{grid-template-columns:1fr}
     .metrics{display:none}
+    .side{padding:0 14px 24px}
+    .chat{position:static;height:auto;max-height:60vh}
+    .msgs{max-height:32vh}
   }
 </style>
 </head>
 <body>
 
 <header class="topbar">
-  <div class="brand"><b>C · 比稿作战室</b><span>PROTOTYPE v0.2</span></div>
+  <div class="brand"><b>C · 比稿作战室</b><span>PROTOTYPE v0.3</span></div>
   <div class="proj">
     <span class="name">MORII 女装 · 2027 春夏上新比稿</span>
     <span class="pill" id="statePill"><i></i>接单 · 判断</span>
@@ -349,7 +393,10 @@
 
 <div class="shell">
   <aside class="rail" id="rail"></aside>
-  <main class="stage" id="stage"></main>
+  <main class="stage">
+    <div id="termHost"></div>
+    <div id="product"></div>
+  </main>
   <aside class="side" id="side"></aside>
 </div>
 
@@ -445,8 +492,89 @@ const STRATEGIES = [
 ];
 
 /* ------------------------------------------------------------------ *
- * 状态
+ * 执行台脚本：每一步「它正在做什么」
  * ------------------------------------------------------------------ */
+const STEP_SCRIPT = {
+  0:[
+    {t:'09:12:04', a:'接单员', m:'读取 brief.pdf · 42 KB · 3 页'},
+    {t:'09:12:06', a:'接单员', m:'语音转写 01:12 · 已与 PDF 合并'},
+    {t:'09:12:11', a:'接单员', m:'抽取必填项 5/5 · 缺口 4 项', k:'ok'},
+    {t:'09:12:14', a:'守门员', m:'检索客户历史 · 0 条记录'},
+    {t:'09:12:16', a:'守门员', m:'行业 Playbook 命中「女装 · 上新传播」'},
+    {t:'09:12:21', a:'守门员', m:'判断 Go · 人天 4.5h · 赢面 中等', k:'ok'},
+    {t:'09:12:22', a:'执行台', m:'等待 G1：确认任务书 + 报价（由人输入）', k:'warn'}
+  ],
+  1:[
+    {t:'09:20:02', a:'执行总监', m:'载入任务书 + Playbook(女装/上新) + 客户偏好'},
+    {t:'09:20:09', a:'执行总监', m:'论点候选 ×3 · 互斥性检查通过'},
+    {t:'09:20:14', a:'执行总监', m:'模块选择：策略 / 创意 / 内容 / 媒介(轻)'},
+    {t:'09:20:15', a:'执行总监', m:'砍掉 电商、直播 · 已写入决策日志'},
+    {t:'09:20:23', a:'执行总监', m:'骨架 6 章 42 页 · 必答项映射 5/5', k:'ok'},
+    {t:'09:20:26', a:'验收官', m:'schema 校验 8/8 · 页数 42 ≤ 45', k:'ok'},
+    {t:'09:20:28', a:'验收官', m:'未决问题 2A / 2C · A 类必须人工', k:'warn'},
+    {t:'09:20:29', a:'执行台', m:'等待 G2：回答 A1 / A2', k:'warn'}
+  ],
+  2:[
+    {t:'09:41:03', a:'调研员', m:'圈定范围：竞品 6 / 人群 / 平台 2 / 品类词'},
+    {t:'09:41:20', a:'调研员', m:'抖音话题 UR · 1.2 亿播放 · 2026-09', k:'ok'},
+    {t:'09:42:05', a:'调研员', m:'小红书抽样 200 条 · 互动 Top 词提取'},
+    {t:'09:42:40', a:'调研员', m:'天猫指数：通勤 +18% · 轻通勤 ≈ 0', k:'warn'},
+    {t:'09:43:02', a:'调研员', m:'客户历史投放数据：未提供', k:'bad'},
+    {t:'09:43:04', a:'验收官', m:'来源 8/8 可点开 · 时效 ✓ · 1 条待补充', k:'warn'}
+  ],
+  3:[
+    {t:'10:02:11', a:'策略', m:'基于 8 条证据生成 3 个互斥方向'},
+    {t:'10:02:30', a:'策略', m:'为 A / B 各配 2 条证据'},
+    {t:'10:02:33', a:'策略', m:'方向 C 仅 1 条证据', k:'bad'},
+    {t:'10:02:34', a:'验收官', m:'证据数校验：C 1 < 2 → 打回', k:'bad'},
+    {t:'10:02:35', a:'执行台', m:'闸门 G3 暂不开放', k:'warn'}
+  ],
+  4:[
+    {t:'10:30:02', a:'生产', m:'路由：文本→Claude · 图像→Seedream · 排版→pptx'},
+    {t:'10:30:18', a:'生产', m:'KV 候选 ×2 · 双场景对照 · ¥3.2', k:'ok'},
+    {t:'10:30:41', a:'生产', m:'脚本 ×3 · 1,840 字 · ¥1.8', k:'ok'},
+    {t:'10:30:52', a:'生产', m:'KOL 组合 9 个 · 预算对齐 25%'},
+    {t:'10:31:03', a:'生产', m:'内容日历 12 周 / 24 条'},
+    {t:'10:31:05', a:'验收官', m:'资产 4/4 · 版权 0 风险 · 偏离 0 处', k:'ok'},
+    {t:'10:31:06', a:'执行台', m:'等待你的修改意见', k:'warn'}
+  ],
+  5:[
+    {t:'11:05:00', a:'合稿', m:'按骨架拼装 42 页 · 套用 MORII VI'},
+    {t:'11:05:22', a:'合稿', m:'一致性扫描 · 发现 3 处不一致', k:'warn'},
+    {t:'11:05:25', a:'验收官', m:'必答项 5/5 · 页数 42/45 · 规范 ✓', k:'ok'},
+    {t:'11:05:26', a:'执行台', m:'等待 G4：确认 3 处或直接定稿', k:'warn'}
+  ],
+  6:[
+    {t:'11:20:01', a:'终验', m:'合规词库 1,240 词全量扫描'},
+    {t:'11:20:09', a:'终验', m:'命中 2 处：P9「最显瘦」/ P18「显瘦」', k:'bad'},
+    {t:'11:20:14', a:'终验', m:'答辩题库匹配 · Top 10 已覆盖 9 题', k:'warn'},
+    {t:'11:20:15', a:'执行台', m:'验收未通过 → 不开放交付', k:'warn'}
+  ],
+  7:[
+    {t:'11:48:00', a:'打包', m:'deck / 预算表 / 自检报告 / Q&A / 日历'},
+    {t:'11:48:06', a:'打包', m:'命名规范化 · 清除内部批注', k:'ok'},
+    {t:'11:48:12', a:'交付', m:'生成只读链接 · 客户无需账号', k:'ok'}
+  ],
+  8:[
+    {t:'次日 18:02', a:'复盘', m:'写入 Outcome · 结果 中标'},
+    {t:'次日 18:02', a:'档案', m:'检索相似案例 · 命中 3 条', k:'ok'},
+    {t:'次日 18:03', a:'档案', m:'标签：服装 / 上新 / 场景切换 / 25-32 女性', k:'ok'}
+  ]
+};
+
+const CHAT_OPENERS = {
+  0:'brief 解析完了。任务书五项齐全，4 条缺口。报价你定，我只给区间。',
+  1:'启动好了。有两条 A 类需要你拍板——主推单品、还有「轻通勤」能不能重新定义。',
+  2:'调研收了 8 条证据，1 条待补充。结论：这个词还没被占，场景可以抢。',
+  3:'三个方向在下面。选一个；或者说「都不对」，我重来。',
+  4:'v1 出完了。哪一条不对？直接说改成什么，我只重跑受影响的。',
+  5:'42 页拼好了，标了 3 处不一致。要改哪处，说页码。',
+  6:'终验：合规 2 处，答辩缺 1 题。要我改就说一声。',
+  7:'5 件套打好包了。要发给谁？我可以生成只读链接。',
+  8:'赢在哪、输在哪？三句话就够，我写进档案。'
+};
+
+
 const initial = () => ({
   step:0,
   gates:{G1:'pending',G2:'pending',G3:'pending',G4:'pending',G5:'pending'},
@@ -463,6 +591,9 @@ const initial = () => ({
   cost:0,
   hours:0,
   log:[],
+  chat:[],
+  chatStep:-1,
+  termDone:{},
   banner:true
 });
 let S = initial();
@@ -478,7 +609,9 @@ function advance(to, cost=0, hours=0){
 }
 function pass(gate, note){
   S.gates[gate] = 'pass';
-  if(note) log(`${gate} 通过 · ${note}`);
+  const msg = `${gate} 通过${note?' · '+note:''}`;
+  log(msg);
+  pushChat('sys', msg);
 }
 
 /* ------------------------------------------------------------------ *
@@ -802,18 +935,14 @@ function stepS4(){
     <p class="hint">「${S.prodNote || '—'}」</p>
   </div>` : `
   <div class="card">
-    <h3>你的修改意见</h3>
-    <p class="hint" style="margin-bottom:8px">不用写「感觉不对」。写清哪一项、改成什么。</p>
-    <textarea class="fb" id="fb" placeholder="例：KV 太像优衣库，把「会议室光」换成「地铁玻璃反光」；脚本 2 结尾要落到产品"></textarea>
-    <div class="choice" style="margin-top:8px">
-      <button onclick="chip('KV 太像优衣库，换一个更日常的光线场景')">KV 太像优衣库</button>
-      <button onclick="chip('脚本 2 结尾要落到产品，不要停在情绪')">结尾没落到产品</button>
-      <button onclick="chip('KOL 里职场号太多，加两个生活方式的')">KOL 太职场</button>
+    <h3>你的修改意见 · 在右边说</h3>
+    <p class="hint" style="margin-bottom:8px">不用写「感觉不对」。写清哪一项、改成什么。说完它只重跑受影响的项。</p>
+    <div class="chips" style="padding:0">
+      <button onclick="sendChat('KV 太像优衣库，换成地铁玻璃反光的日常场景')">KV 太像优衣库</button>
+      <button onclick="sendChat('脚本 2 结尾要落到产品，不要停在情绪')">结尾没落到产品</button>
+      <button onclick="sendChat('KOL 里职场号太多，加两个生活方式的')">KOL 太职场</button>
     </div>
-    <div class="actions" style="margin-top:12px">
-      <button class="btn" onclick="regen()">按意见重生成 v2</button>
-      <span class="hint">只重跑受影响的项，不整包重来</span>
-    </div>
+    <p class="hint" style="margin-top:10px">右边指挥台也可以直接打字。听到具体意见后，执行台会把「只重跑哪两项」写出来。</p>
   </div>`}
 
   ${qaStrip('生产',[
@@ -1101,7 +1230,11 @@ function doG2(){ if(!(S.a1&&S.a2)) return; pass('G2',`A1=${S.a1}，A2=${S.a2}`);
 function redoG2(){ S.a1=null; S.a2=null; log('G2 · 重来，重新给方向'); render(); }
 
 function doS2(){ advance(3,8.4,0.4); render(); }
-function fixStrat(){ S.stratFix=true; log('验收 · 补齐方向 C 的证据'); S.cost+=0.6; S.hours+=0.1; render(); }
+function fixStrat(){
+  S.stratFix=true; log('验收 · 补齐方向 C 的证据'); S.cost+=0.6; S.hours+=0.1;
+  appendTerm({t:'—', a:'验收官', m:'方向 C 已补到 2 条证据 · G3 开放', k:'ok'});
+  render();
+}
 function pickStrategy(id){ S.chosen=id; render(); }
 function doG3(){
   if(!S.chosen || !S.stratFix) return;
@@ -1109,20 +1242,12 @@ function doG3(){
   pass('G3','选定 '+S.chosen+' · '+name); advance(4,7.9,1.0); render();
 }
 
-function chip(t){
-  const ta = el('fb');
-  if(!ta) return;
-  ta.value = ta.value ? ta.value.replace(/[；;]\s*$/,'') + '；' + t : t;
-  ta.focus();
-}
+function chip(t){ sendChat(t); }
 function regen(){
-  const ta = el('fb');
+  const ta = el('chatInput');
   const v = (ta?.value || '').trim();
-  if(!v){ if(ta){ta.focus(); ta.style.borderColor='#d9b3a7';} return; }
-  S.prodV = 2; S.prodNote = v;
-  log('生产 · 提交意见，重生成 v2');
-  S.cost += 4.8; S.hours += 0.4;
-  render();
+  if(!v) return sendChat('KV 太像优衣库，换成地铁玻璃反光的日常场景');
+  sendChat(v);
 }
 function doS4(){ advance(5,1.9,0.9); render(); }
 
@@ -1133,12 +1258,206 @@ function doS7(){ S.delivered=true; advance(8,0,0.2); render(); }
 function doG5(){ pass('G5','复盘卡已填，项目关闭'); S.archived=true; log('G5 · 档案已写入'); render(); }
 
 function goStep(i){ if(S.rejected) S.rejected=false; S.step=i; render(); }
-function resetAll(){ S=initial(); log('演示重置'); render(); }
+function resetAll(){ S=initial(); termKey=null; if(termTimer){clearInterval(termTimer);termTimer=null;} log('演示重置'); render(); }
 el('reset').onclick = resetAll;
 
 /* ------------------------------------------------------------------ *
  * 渲染
  * ------------------------------------------------------------------ */
+/* ------------------------------------------------------------------ *
+ * 执行台 · 终端流式播放
+ * ------------------------------------------------------------------ */
+let termTimer = null;
+let termKey = null;
+
+function lineHTML(l){
+  return `<div class="ln${l.k?' '+l.k:''}"><span class="t">${l.t}</span><span class="a">${l.a}</span><span class="m">${l.m}</span></div>`;
+}
+function setTermLive(txt, done, bad){
+  const n = el('termLive'), b = el('skipBtn');
+  if(n){ n.textContent = txt; n.style.color = bad ? '#de8a72' : (done ? '#7f8a80' : '#8fbf93'); }
+  if(b) b.style.display = done ? 'none' : '';
+}
+function finishTerm(lines){
+  if(termTimer){ clearInterval(termTimer); termTimer = null; }
+  const p = el('product'); if(p) p.classList.remove('dim');
+  if(lines.some(l=>l.k==='bad')) setTermLive('● 有阻断项', true, true);
+  else if(lines.length && lines[lines.length-1].k==='warn'){ setTermLive('● 等你决定', true, false); const n=el('termLive'); if(n) n.style.color='#dfb385'; }
+  else setTermLive('● 已完成', true, false);
+}
+function mountTerm(step){
+  const host = el('termHost');
+  if(!host) return;
+  if(termTimer){ clearInterval(termTimer); termTimer = null; }
+  const label = S.rejected ? 'S0 · 接单 · 判断' : `${STEPS[step].code} · ${STEPS[step].title}`;
+  host.innerHTML = `
+  <div class="term">
+    <div class="term-head">
+      <span class="lights"><i></i><i></i><i></i></span>
+      <span>执行台 · ${label}</span>
+      <span class="term-live" id="termLive">● 正在工作</span>
+      <button class="skip" id="skipBtn" onclick="flushTerm()">跳过</button>
+    </div>
+    <div class="term-body" id="termBody"></div>
+  </div>`;
+
+  const lines = STEP_SCRIPT[step] || [];
+  const body = el('termBody');
+  if(S.termDone[step] || !lines.length){
+    body.innerHTML = lines.map(lineHTML).join('');
+    body.scrollTop = body.scrollHeight;
+    finishTerm(lines);
+    return;
+  }
+  body.innerHTML = '';
+  let i = 0;
+  const tick = () => {
+    if(!document.getElementById('termBody')){ clearInterval(termTimer); termTimer = null; return; }
+    if(i >= lines.length){
+      clearInterval(termTimer); termTimer = null;
+      S.termDone[step] = true;
+      finishTerm(lines);
+      return;
+    }
+    body.insertAdjacentHTML('beforeend', lineHTML(lines[i]));
+    body.scrollTop = body.scrollHeight;
+    i++;
+  };
+  tick();
+  termTimer = setInterval(tick, 230);
+}
+function flushTerm(){
+  if(termTimer){ clearInterval(termTimer); termTimer = null; }
+  const body = el('termBody');
+  if(!body) return;
+  const step = S.rejected ? 0 : (S.archived ? 8 : S.step);
+  const ls = STEP_SCRIPT[step] || [];
+  body.innerHTML = ls.map(lineHTML).join('');
+  body.scrollTop = body.scrollHeight;
+  S.termDone[step] = true;
+  finishTerm(ls);
+}
+function appendTerm(l){
+  const body = el('termBody');
+  if(!body) return;
+  body.insertAdjacentHTML('beforeend', lineHTML(l));
+  body.scrollTop = body.scrollHeight;
+  setTermLive('● 已完成', true);
+}
+
+/* ------------------------------------------------------------------ *
+ * 指挥台 · 对话
+ * ------------------------------------------------------------------ */
+const CHIPS = {
+  0:['brief 里有坑吗','报价 8800','这单不接'],
+  1:['主推单品：西装外套','主推单品：针织套装','允许重新定义「轻通勤」'],
+  2:['再查竞品','进入策略'],
+  3:['选 A · 一天两场','选 B · 不皱的一天','都不对，重来'],
+  4:['KV 太像优衣库','脚本 2 结尾要落到产品','KOL 加两个生活方式的'],
+  5:['P5 改回「通勤 + 轻社交」','P28 标待定','直接定稿'],
+  6:['应用修改指令','补「为什么不投硬广」'],
+  7:['生成只读链接'],
+  8:['赢在场景化定义','下次调研多花 30 分钟']
+};
+
+function pushChat(who, text){ S.chat.push({who, text}); }
+function scrollChat(){ const m = el('msgs'); if(m) m.scrollTop = m.scrollHeight; }
+
+function routeChat(t){
+  const step = S.step;
+
+  if(S.rejected) return '项目已归档。要重开，点「回到判断」。';
+
+  if(step===0){
+    if(/不接|拒|算了/.test(t)){ S.rejected = true; log('G1 · No-Go'); return '已归档。理由我先按「赢面与投入不匹配」记着，你可以改。'; }
+    const m = t.match(/(\d{3,6})/);
+    if(m){ S.quote = parseInt(m[1],10); log('G1 · 报价 '+fmtMoney(S.quote)); return `报价改成 ${fmtMoney(S.quote)}。机器只给区间 ¥3,800–8,800，数字你定。`; }
+    if(/坑|风险|缺口/.test(t)) return '四个缺口：① 预算是否含 KOL 采买 ② 没给竞品清单 ③「轻通勤」能否重定义 ④ 无历史投放数据。前两个我按假设推进，后两个进未决问题。';
+    return '报价直接说数字（比如「报价 8800」）。接不接也由你。';
+  }
+
+  if(step===1){
+    if(/西装/.test(t)){ S.a1='西装外套'; log('G2 · A1 西装外套'); return '按西装外套走。创意会偏「一件撑全天」，KOL 偏职场腰部号。'; }
+    if(/针织/.test(t)){ S.a1='针织套装'; log('G2 · A1 针织套装'); return '按针织套装走。场景更软，偏「下班直接去约会」。'; }
+    if(/都做|两个/.test(t)){ S.a1='两个都做'; return '两个都做主推。风险是预算摊薄，42 页要拆成两条线。'; }
+    if(/允许重新定义|重新定义/.test(t)){ S.a2='允许重新定义'; log('G2 · A2 允许重新定义'); return '那就按「一天两场」重写，不等客户口径。'; }
+    if(/沿用/.test(t)){ S.a2='沿用客户定义'; log('G2 · A2 沿用客户定义'); return '沿用客户定义，论点会收窄到风格层面，差异会弱。'; }
+    return '两条 A 类还等你：主推单品、以及「轻通勤」能不能重新定义。';
+  }
+
+  if(step===2){
+    if(/进入策略|继续|下一步/.test(t)){ advance(3,0,0); return '进策略。三个方向马上出来。'; }
+    if(/竞品/.test(t)) return '竞品已覆盖 UR / 优衣库 / MO&Co. / 太平鸟 / 伊芙丽 / 致知，6 家。要加哪家直接说。';
+    return '调研已收口。说「进入策略」往下走。';
+  }
+
+  if(step===3){
+    if(/都不对|重来/.test(t)){ S.chosen=null; S.stratFix=false; return '三个方向作废，我重出。顺手给我一条你不满意的理由，下次避开。'; }
+    const id = /一天两场|选\s*A/.test(t) ? 'A' : (/不皱|选\s*B/.test(t) ? 'B' : (/下班|选\s*C/.test(t) ? 'C' : null));
+    if(id){ S.chosen = id; log('G3 · 倾向 '+id); return `记下 ${id}。但闸门没开：方向 C 只有 1 条证据，客户一定会问「为什么不选 C」。补齐才放行。`; }
+    return '三个方向在下面。说「选 A」「选 B」「选 C」，或者「都不对，重来」。';
+  }
+
+  if(step===4){
+    if(/合稿|下一步/.test(t)) return '资产还在等你一轮意见。下面按钮可以直接进合稿。';
+    const note = t.replace(/^[，,。\s]+/, '');
+    S.prodV = 2;
+    S.prodNote = S.prodNote ? S.prodNote + '；' + note : note;
+    S.cost += 4.8; S.hours += 0.4;
+    log('生产 · 收到意见，重生成受影响项');
+    appendTerm({t:'—', a:'执行台', m:'收到意见 · 只重跑 KV 与脚本 2', k:'ok'});
+    return '收到。只重跑 KV 和脚本 2，KOL 和日历不动。v2 在下半区。';
+  }
+
+  if(step===5){
+    if(/P5|P28|P33/.test(t)){
+      const what = /P5/.test(t) ? 'P5 已改回「通勤 + 轻社交」' : (/P28/.test(t) ? 'P28 的 KOL 采买已标「待定」' : 'P33 日历已延到 11/11 当天');
+      log('合稿 · ' + what);
+      return what + '。另外两处还等你确认。';
+    }
+    if(/定稿|接受|都改|确认/.test(t)){ pass('G4','定稿 42 页'); advance(6,1.6,0.2); return '三处都改了，定稿。进终验。'; }
+    return '三处不一致：P5 人群写窄了、P28 把 KOL 采买写成已含、P33 日历止于双 11 前一周。说页码我就改。';
+  }
+
+  if(step===6){
+    if(/应用|改|修|硬广/.test(t)){
+      S.fixDone = true; S.cost += 1.6; S.hours += 0.2;
+      log('终验 · 应用 2 条修改指令');
+      appendTerm({t:'—', a:'终验', m:'P9 / P18 已改 · 答辩补 1 题', k:'ok'});
+      return '两处合规已改：「最显瘦的通勤单品」→「更利落的通勤选择」；「显瘦」→「视觉显瘦」。答辩补了「为什么不投硬广」。';
+    }
+    return '终验两项待处理：P9 / P18 合规用词、答辩缺「为什么不投硬广」。说「应用修改指令」。';
+  }
+
+  if(step===7){
+    if(/链接|发|交付/.test(t)){
+      S.delivered = true; advance(8,0,0.2);
+      return '只读链接已生成（7 天有效）：pitchdeck.app/s/MORII-9f2c。客户不用登录。已记一笔交付。';
+    }
+    return '五件套已打包。说「生成只读链接」就能发。';
+  }
+
+  if(step===8){
+    if(/赢|场景/.test(t)) return '已写入：赢在把「轻通勤」翻译成「一天两次切换」的具体场景，三家唯一做这件事的。';
+    if(/下次|调研|改/.test(t)) return '已写入：下次调研多花 30 分钟验证品类词是否已被占领，这次是碰巧的。';
+    return '复盘三问还差两问：为什么赢、下次改什么。说一句我记一句。';
+  }
+
+  return '这句我先记着。要往下走，看下面的按钮，或者点上面的建议。';
+}
+
+function sendChat(preset){
+  const ta = el('chatInput');
+  const v = preset !== undefined ? preset : ((ta && ta.value) || '').trim();
+  if(!v) return;
+  if(preset === undefined && ta) ta.value = '';
+  pushChat('me', v);
+  const reply = routeChat(v);
+  if(reply) pushChat('agent', reply);
+  render();
+}
+
+/* ------------------------------------------------------------------ */
 function renderRail(){
   const done = S.archived ? STEPS.length : S.step;
   el('rail').innerHTML = `<h4>项目状态</h4>` + STEPS.map((s,i)=>{
@@ -1151,53 +1470,38 @@ function renderRail(){
   }).join('');
 }
 
-function renderSide(){
-  const passed = S.gates.G2==='pass';
-  const aCount = passed ? 0 : (S.a1?0:1) + (S.a2?0:1);
-  const cCount = passed ? 0 : 2;
+function renderChat(){
+  const key = S.archived ? 8 : S.step;
+  const chips = (!S.archived && !S.rejected) ? (CHIPS[key] || []) : [];
+  const code = S.archived || S.rejected ? '已归档' : STEPS[S.step].code;
   el('side').innerHTML = `
-    <div class="panel">
-      <h4>项目卡</h4>
-      <dl class="mini">
-        <dt>客户</dt><dd>MORII</dd>
-        <dt>预算</dt><dd>120 万</dd>
-        <dt>提报</dt><dd>3 天后</dd>
-        <dt>报价</dt><dd>${fmtMoney(S.quote)}</dd>
-        <dt>版本</dt><dd>${S.prodV===2?'生产 v2':'v1'}</dd>
-        <dt>当前</dt><dd>${S.archived?'已关闭':STEPS[S.step].code}</dd>
-      </dl>
+  <div class="chat">
+    <div class="chat-top">
+      <span class="code">${code}</span>
+      <b>指挥台</b>
+      <span class="meta">${fmtMoney(S.quote)}<br>¥${S.cost.toFixed(1)} · ${S.hours.toFixed(1)}h</span>
     </div>
-
-    <div class="panel">
-      <h4>未决问题</h4>
-      <div class="counter">
-        <div class="a"><b>${aCount}</b><span>A 必须答</span></div>
-        <div><b>0</b><span>B 已定</span></div>
-        <div><b>${cCount}</b><span>C 假设</span></div>
-      </div>
-      <p class="empty" style="margin-top:9px">${passed?'A 类已清 → 可进入下一阶段':(aCount>0?'有 A 类未决 → G2 不能自动通过':'等待启动')}</p>
+    <div class="msgs" id="msgs">
+      ${S.chat.map(m=>m.who==='sys'
+        ? `<div class="msg sys">${m.text}</div>`
+        : `<div class="msg ${m.who}"><span class="who">${m.who==='me'?'你':'执行台'}</span>${m.text}</div>`).join('')}
     </div>
-
-    <div class="panel">
-      <h4>决策日志</h4>
-      ${S.log.length? S.log.slice(0,7).map(l=>`<div class="logline"><b>${l.t}</b>${l.text}</div>`).join('') : '<p class="empty">还没有决策。每一次点击都会记一条。</p>'}
+    ${chips.length ? `<div class="chips">${chips.map(c=>`<button onclick="sendChat('${c.replace(/'/g,"\\'")}')">${c}</button>`).join('')}</div>` : ''}
+    <div class="chat-in">
+      <textarea id="chatInput" rows="1" placeholder="说一句，或点上面的建议…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"></textarea>
+      <button onclick="sendChat()">发送</button>
     </div>
-
-    <div class="panel">
-      <h4>闸门</h4>
-      <dl class="mini">
-        ${Object.entries(S.gates).map(([g,v])=>`<dt>${g}</dt><dd style="color:${v==='pass'?'var(--ok)':'var(--ink-3)'}">${v==='pass'?'通过':'待定'}</dd>`).join('')}
-      </dl>
-    </div>`;
+  </div>`;
+  scrollChat();
 }
 
 function render(){
-  const banner = S.banner && S.step===0 ? `
+  const banner = S.banner && S.step===0 && !S.rejected && !S.archived ? `
     <div class="banner">
       <span>👉</span>
-      <div><b>这是一个可点的流程原型。</b> 接单和判断已合成一步；生产是 AI 出活、你提意见。<br>
-      每个阶段收口都有<b>「验收官」</b>先查完整性，再进人工闸门——注意 S3 策略那关，验收不过闸门不开放。</div>
-      <button class="x" onclick="document.querySelector('.banner').remove()">×</button>
+      <div><b>这是可点的流程原型。</b> 上面是执行台（它正在做什么），下面是产物，右边是指挥台。<br>
+      试试直接在右边说「报价 8800」或「主推单品：西装外套」——每句话都会落到某个状态上。</div>
+      <button class="x" onclick="this.closest('.banner').remove()">×</button>
     </div>` : '';
 
   let body;
@@ -1205,14 +1509,28 @@ function render(){
   else if(S.archived) body = stepDone();
   else body = [stepS0,stepS1,stepS2,stepS3,stepS4,stepS5,stepS6,stepS7,stepS8][S.step]();
 
-  el('stage').innerHTML = banner + body;
+  const key = S.rejected ? 'rej' : (S.archived ? 'done' : S.step);
+  if(termKey !== key){
+    termKey = key;
+    mountTerm(S.rejected ? 0 : (S.archived ? 8 : S.step));
+    const opener = S.rejected
+      ? '归档了。理由我先按「赢面与投入不匹配」记着，可以改。'
+      : S.archived
+        ? '档案写完了。这一单的经验，下一单会先翻出来。'
+        : CHAT_OPENERS[S.step];
+    if(opener) pushChat('agent', opener);
+  }
 
-  const names = ['接单 · 判断','启动','调研','策略','生产','合稿','验收','交付','复盘'];
+  el('product').innerHTML = banner + body;
+  const curStep = S.rejected ? 0 : (S.archived ? 8 : S.step);
+  el('product').classList.toggle('dim', !S.termDone[curStep]);
+
+  const names = ['接单 · 判断','启动','调研','策略','生产','合稿','终验','交付','复盘'];
   el('statePill').innerHTML = `<i></i>${S.archived||S.rejected?'已归档':names[S.step]}`;
   el('mCost').textContent = '¥' + S.cost.toFixed(1);
   el('mHours').textContent = S.hours.toFixed(1) + 'h';
 
-  renderRail(); renderSide();
+  renderRail(); renderChat();
 }
 
 render();
