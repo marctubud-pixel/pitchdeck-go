@@ -60,52 +60,52 @@
   }
   .ghost:hover{border-color:#cfc8bb;color:var(--ink)}
 
+  /* ---------- terminal band (full width, collapsible) ---------- */
+  .termbar{max-width:1480px;margin:0 auto;padding:16px 22px 0}
+  .termbar .term{margin-bottom:0}
+
   .shell{
     display:grid;
-    grid-template-columns:236px minmax(0,1fr) 310px;
+    grid-template-columns:minmax(0,1fr) 330px;
     gap:0;
     max-width:1480px;margin:0 auto;
     align-items:start;
   }
-  /* ---------- left rail ---------- */
-  .rail{
-    position:sticky;top:57px;
-    padding:22px 12px 40px 20px;
-    border-right:1px solid var(--line);
-    max-height:calc(100vh - 57px);overflow:auto;
+
+  /* ---------- board ---------- */
+  .board{padding:18px 26px 90px 22px;min-width:0}
+  .sec{
+    border:1px solid var(--line);background:var(--card);
+    border-radius:14px;margin-bottom:12px;overflow:hidden;
+    transition:border-color .16s,box-shadow .16s;
   }
-  .rail h4{
-    margin:0 0 12px;font-size:10.5px;letter-spacing:.16em;
-    color:var(--ink-3);font-weight:600;
+  .sec-head{display:flex;align-items:center;gap:9px;padding:13px 18px;user-select:none}
+  .sec.done .sec-head{cursor:pointer}
+  .sec.done .sec-head:hover h2{color:var(--ink)}
+  .sec-head .code{
+    font:700 10px/1 var(--mono);letter-spacing:.06em;
+    color:var(--ink-3);background:#f3f0ea;padding:5px 7px;border-radius:5px;
   }
-  .step{
-    position:relative;display:flex;gap:10px;
-    padding:8px 8px 8px 0;border-radius:9px;
-    cursor:pointer;border:0;background:none;width:100%;text-align:left;
-    color:var(--ink-3);
+  .sec.active .sec-head .code{background:var(--ink);color:#fff}
+  .sec-head h2{margin:0;font-size:14px;font-weight:600;letter-spacing:-.005em;color:var(--ink-2)}
+  .sec.active .sec-head h2,.sec.done .sec-head h2{color:var(--ink)}
+  .sec-head .gate{
+    font:600 9.5px/1 var(--mono);color:var(--accent);
+    background:var(--accent-soft);padding:4px 6px;border-radius:4px;letter-spacing:.05em;
   }
-  .step:hover{background:#fff}
-  .step .dot{
-    position:relative;z-index:1;flex:0 0 auto;
-    width:19px;height:19px;border-radius:50%;
-    border:1px solid var(--line);background:#fff;
-    font:600 9.5px/17px var(--mono);text-align:center;color:var(--ink-3);
-  }
-  .step.done .dot{background:var(--ok);border-color:var(--ok);color:#fff}
-  .step.current .dot{background:var(--ink);border-color:var(--ink);color:#fff}
-  .step .lab{font-size:12.5px;line-height:1.35;padding-top:1px}
-  .step .gate{
-    display:inline-block;margin-top:3px;
-    font:600 9.5px/1 var(--mono);letter-spacing:.05em;
-    color:var(--accent);background:var(--accent-soft);
-    border-radius:4px;padding:3px 5px;
-  }
-  .step.done .lab{color:var(--ink-2)}
-  .step.current .lab{color:var(--ink);font-weight:600}
-  .step::after{
-    content:"";position:absolute;left:9px;top:27px;bottom:-8px;width:1px;background:var(--line);
-  }
-  .step:last-child::after{display:none}
+  .sec-head .st{margin-left:auto;font-size:11px;color:var(--ink-3);white-space:nowrap}
+  .sec.active .sec-head .st{color:var(--accent);font-weight:600}
+  .sec.done .sec-head .st{color:var(--ok)}
+  .sec.active{border-color:#cfc8bb;box-shadow:0 14px 40px -34px rgba(0,0,0,.55)}
+  .sec.todo{background:transparent;border-style:dashed;opacity:.5}
+  .sec-body{padding:0 18px 18px}
+  .sec-body h1{font-size:18px;margin:0 0 4px}
+  .sec-body .eyebrow{display:none}
+  .sec-body .why{margin-bottom:14px}
+  .readonly{pointer-events:none;opacity:.82}
+  .sec-sum{margin:0;padding:0 18px 16px}
+  .sec-sum li{padding:4px 0;border-bottom:0}
+  .sec > p.sec-sum{font-size:12px;color:var(--ink-3);margin:0;padding:0 18px 14px}
 
   /* ---------- stage ---------- */
   .stage{padding:26px 30px 90px;min-width:0}
@@ -293,7 +293,11 @@
 
   /* ---------- terminal ---------- */
   .term{margin-bottom:18px;border-radius:13px;overflow:hidden;border:1px solid #262420;background:#161512;color:#d9d3c7;font-family:var(--mono);box-shadow:0 12px 30px -22px rgba(0,0,0,.5)}
-  .term-head{display:flex;align-items:center;gap:9px;padding:9px 12px;background:#1d1b17;border-bottom:1px solid #2a2721;font-size:10.5px;color:#8d8579;letter-spacing:.03em}
+  .term-head{display:flex;align-items:center;gap:9px;padding:9px 12px;background:#1d1b17;border-bottom:1px solid #2a2721;font-size:10.5px;color:#8d8579;letter-spacing:.03em;cursor:pointer}
+  .term-head:hover{background:#211e19}
+  .term.closed .term-head{border-bottom:0}
+  .term.closed .term-body{display:none}
+  .term.closed{border-color:#2a2721}
   .lights{display:flex;gap:4px}
   .lights i{width:8px;height:8px;border-radius:50%;background:#3a352c}
   .lights i:nth-child(1){background:#b8533b}
@@ -302,9 +306,9 @@
   .term-live{margin-left:auto;color:#8fbf93;white-space:nowrap}
   .skip{border:0;background:#2a2721;color:#a8a091;border-radius:5px;padding:3px 7px;font:10px var(--mono);cursor:pointer}
   .skip:hover{background:#332f28;color:#d9d3c7}
-  .term-body{height:200px;overflow:auto;padding:10px 12px;font-size:11.5px;line-height:1.95}
+  .term-body{height:210px;overflow:auto;padding:10px 12px;font-size:11.5px;line-height:1.95}
   .ln{display:flex;gap:9px;animation:lnin .16s ease}
-  @keyframes lnin{from{opacity:0;transform:translateY(2px)}to{opacity:1;transform:none}}
+  @keyframes lnin{from{transform:translateY(2px)}to{transform:none}}
   .ln .t{color:#6b655a;flex:0 0 auto}
   .ln .a{color:#dfb385;flex:0 0 66px}
   .ln .m{color:#cbc4b6;min-width:0}
@@ -353,20 +357,21 @@
     .metric span{font-size:9.5px;letter-spacing:0}
   }
   @media (max-width:1180px){
-    .shell{grid-template-columns:200px minmax(0,1fr) 300px}
-    .stage{padding:24px 20px 80px}
+    .shell{grid-template-columns:minmax(0,1fr) 300px}
+    .board{padding:16px 18px 80px 18px}
+    .termbar{padding:12px 18px 0}
     .term-body{height:176px}
     .ln .a{flex:0 0 58px;font-size:10.5px}
   }
   @media (max-width:980px){
-    .shell{grid-template-columns:minmax(0,1fr) 292px}
-    .rail{display:none}
-    .stage{padding:20px 16px 70px}
+    .shell{grid-template-columns:minmax(0,1fr) 282px}
+    .board{padding:14px 14px 70px 14px}
     .grid3{grid-template-columns:1fr 1fr}
   }
-  @media (max-width:700px){
+  @media (max-width:760px){
     .shell{grid-template-columns:1fr}
-    .stage{padding:16px 14px 30px}
+    .board{padding:14px 14px 20px}
+    .termbar{padding:12px 14px 0}
     .grid2,.grid3,.evidence{grid-template-columns:1fr}
     .metrics{display:none}
     .side{padding:0 14px 24px}
@@ -391,12 +396,10 @@
   <button class="ghost" id="reset">重置演示</button>
 </header>
 
+<div class="termbar" id="termHost"></div>
+
 <div class="shell">
-  <aside class="rail" id="rail"></aside>
-  <main class="stage">
-    <div id="termHost"></div>
-    <div id="product"></div>
-  </main>
+  <main class="board" id="product"></main>
   <aside class="side" id="side"></aside>
 </div>
 
@@ -594,6 +597,8 @@ const initial = () => ({
   chat:[],
   chatStep:-1,
   termDone:{},
+  termOpen:true,
+  view:{},
   banner:true
 });
 let S = initial();
@@ -1280,23 +1285,31 @@ function setTermLive(txt, done, bad){
 }
 function finishTerm(lines){
   if(termTimer){ clearInterval(termTimer); termTimer = null; }
-  const p = el('product'); if(p) p.classList.remove('dim');
   if(lines.some(l=>l.k==='bad')) setTermLive('● 有阻断项', true, true);
   else if(lines.length && lines[lines.length-1].k==='warn'){ setTermLive('● 等你决定', true, false); const n=el('termLive'); if(n) n.style.color='#dfb385'; }
   else setTermLive('● 已完成', true, false);
+  if(!S.archived && !S.rejected && S.step > 0){
+    const a = document.querySelector('.sec.active');
+    if(a){
+      const y = a.getBoundingClientRect().top + window.scrollY - 64;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+  }
 }
 function mountTerm(step){
   const host = el('termHost');
   if(!host) return;
   if(termTimer){ clearInterval(termTimer); termTimer = null; }
+  if(!S.termDone[step]) S.termOpen = true;
   const label = S.rejected ? 'S0 · 接单 · 判断' : `${STEPS[step].code} · ${STEPS[step].title}`;
   host.innerHTML = `
-  <div class="term">
-    <div class="term-head">
+  <div class="term ${S.termOpen?'':'closed'}">
+    <div class="term-head" onclick="toggleTerm()">
       <span class="lights"><i></i><i></i><i></i></span>
       <span>执行台 · ${label}</span>
       <span class="term-live" id="termLive">● 正在工作</span>
-      <button class="skip" id="skipBtn" onclick="flushTerm()">跳过</button>
+      <button class="skip" id="termToggle" onclick="event.stopPropagation();toggleTerm()">${S.termOpen?'收起':'展开'}</button>
+      <button class="skip" id="skipBtn" onclick="event.stopPropagation();flushTerm()">跳过</button>
     </div>
     <div class="term-body" id="termBody"></div>
   </div>`;
@@ -1458,16 +1471,84 @@ function sendChat(preset){
 }
 
 /* ------------------------------------------------------------------ */
-function renderRail(){
-  const done = S.archived ? STEPS.length : S.step;
-  el('rail').innerHTML = `<h4>项目状态</h4>` + STEPS.map((s,i)=>{
-    const cls = i===S.step && !S.archived ? 'current' : (i<done ? 'done' : '');
-    const gateState = s.gate && S.gates[s.gate]==='pass' ? ' ✓' : '';
-    return `<button class="step ${cls}" onclick="goStep(${i})">
-      <span class="dot">${i<done?'✓':(i+1)}</span>
-      <span class="lab">${s.title}${s.gate?`<span class="gate">${s.gate}${gateState}</span>`:''}</span>
-    </button>`;
-  }).join('');
+function toggleTerm(){
+  S.termOpen = !S.termOpen;
+  const t = document.querySelector('.term');
+  if(t) t.classList.toggle('closed', !S.termOpen);
+  const b = el('termToggle');
+  if(b) b.textContent = S.termOpen ? '收起' : '展开';
+}
+function toggleView(i){
+  S.view[i] = !S.view[i];
+  render();
+}
+
+function summaryFor(i){
+  const dir = S.chosen ? STRATEGIES.find(x=>x.id===S.chosen) : null;
+  const map = {
+    0:[
+      `结论 Go · 报价 ${fmtMoney(S.quote)}`,
+      `任务书五项齐全 · 缺口 ${GAPS.length} 条已列成反问`
+    ],
+    1:[
+      '论点：「轻通勤」不是风格，是一天两次切换的能力',
+      '骨架 6 章 42 页 · 必答项映射 5/5',
+      `A1 ${S.a1 || '—'} · A2 ${S.a2 || '—'}`
+    ],
+    2:[
+      '证据 8 条 · 1 条待补充（客户历史数据）',
+      '「轻通勤」平台侧仍空白，「通勤穿搭」已是红海'
+    ],
+    3:[
+      `方向 ${S.chosen || '—'}${dir ? ' · ' + dir.name : ''}`,
+      `验收：方向 C 证据${S.stratFix ? '已补齐' : '不足'}`
+    ],
+    4:[
+      `资产 ${S.prodV === 2 ? 'v2' : 'v1'} · KV / 脚本 / KOL / 日历`,
+      '通道：文本 + 图像 + 排版（视频与配音留接口）'
+    ],
+    5:[
+      '42 页 · 必答项 5/5 可定位',
+      '3 处前后不一致已标出，待 G4 确认'
+    ],
+    6:[
+      `合规 ${S.fixDone ? '已改 2 处' : '2 处待改'}`,
+      `答辩 Q&A ${S.fixDone ? '10/10' : '9/10'}`
+    ],
+    7:[
+      `5 件套已打包${S.delivered ? ' · 只读链接已发给客户' : ''}`
+    ],
+    8:[
+      '赢在把「轻通勤」讲成具体时间场景',
+      '档案已写入，下一单先翻反例'
+    ]
+  };
+  return map[i] || [];
+}
+
+function cardHTML(i){
+  const s = STEPS[i];
+  const cur = (S.rejected || S.archived) ? -1 : S.step;
+  const active = i === cur;
+  const done = S.archived || (cur >= 0 && i < cur);
+  const todo = !active && !done;
+  const viewing = !!S.view[i];
+  const gate = s.gate ? `<span class="gate">${s.gate}${S.gates[s.gate]==='pass'?' ✓':''}</span>` : '';
+  const stateTxt = active ? '进行中' : done ? (viewing ? '收起' : '已完成 · 查看') : '未开始';
+  let inner;
+  if(active) inner = `<div class="sec-body">${SECTIONS[i]()}</div>`;
+  else if(done && viewing) inner = `<div class="sec-body readonly">${SECTIONS[i]()}</div>`;
+  else if(done) inner = `<ul class="check sec-sum">${summaryFor(i).map(t=>`<li><span class="tick">✓</span><span>${t}</span></li>`).join('')}</ul>`;
+  else inner = `<p class="sec-sum">等上一阶段完成。</p>`;
+  return `<section class="sec${active?' active':''}${done?' done':''}${todo?' todo':''}">
+    <div class="sec-head"${done ? ` onclick="toggleView(${i})"` : ''}>
+      <span class="code">${s.code}</span>
+      <h2>${s.title}</h2>
+      ${gate}
+      <span class="st">${stateTxt}</span>
+    </div>
+    ${inner}
+  </section>`;
 }
 
 function renderChat(){
@@ -1495,19 +1576,16 @@ function renderChat(){
   scrollChat();
 }
 
+const SECTIONS = [stepS0,stepS1,stepS2,stepS3,stepS4,stepS5,stepS6,stepS7,stepS8];
+
 function render(){
   const banner = S.banner && S.step===0 && !S.rejected && !S.archived ? `
     <div class="banner">
       <span>👉</span>
-      <div><b>这是可点的流程原型。</b> 上面是执行台（它正在做什么），下面是产物，右边是指挥台。<br>
+      <div><b>这是可点的流程原型。</b> 上面是执行台（它正在做什么），左边是九个板块，右边是指挥台。<br>
       试试直接在右边说「报价 8800」或「主推单品：西装外套」——每句话都会落到某个状态上。</div>
       <button class="x" onclick="this.closest('.banner').remove()">×</button>
     </div>` : '';
-
-  let body;
-  if(S.rejected) body = stepRejected();
-  else if(S.archived) body = stepDone();
-  else body = [stepS0,stepS1,stepS2,stepS3,stepS4,stepS5,stepS6,stepS7,stepS8][S.step]();
 
   const key = S.rejected ? 'rej' : (S.archived ? 'done' : S.step);
   if(termKey !== key){
@@ -1521,16 +1599,28 @@ function render(){
     if(opener) pushChat('agent', opener);
   }
 
-  el('product').innerHTML = banner + body;
-  const curStep = S.rejected ? 0 : (S.archived ? 8 : S.step);
-  el('product').classList.toggle('dim', !S.termDone[curStep]);
+  let board;
+  if(S.rejected){
+    board = `<section class="sec active">
+      <div class="sec-head"><span class="code">S0</span><h2>接单 · 判断</h2><span class="st">已归档</span></div>
+      <div class="sec-body">${stepRejected()}</div>
+    </section>`;
+  } else {
+    board = STEPS.map((s,i)=>cardHTML(i)).join('');
+    if(S.archived) board += `<section class="sec">
+      <div class="sec-head"><span class="code">档</span><h2>档案</h2><span class="st">项目已关闭</span></div>
+      <div class="sec-body" style="padding-top:4px">${stepDone()}</div>
+    </section>`;
+  }
+
+  el('product').innerHTML = banner + board;
 
   const names = ['接单 · 判断','启动','调研','策略','生产','合稿','终验','交付','复盘'];
   el('statePill').innerHTML = `<i></i>${S.archived||S.rejected?'已归档':names[S.step]}`;
   el('mCost').textContent = '¥' + S.cost.toFixed(1);
   el('mHours').textContent = S.hours.toFixed(1) + 'h';
 
-  renderRail(); renderChat();
+  renderChat();
 }
 
 render();
